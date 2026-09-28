@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#10253D">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ŠČIT — Zavarovalniški informacijski sistem</title>
+<style>
+:root{
+  --navy:#0F2438; --paper:#F4F2EC; --panel:#FFFFFF; --panel2:#FAF9F5;
+  --primary:#2F6F8F; --steel:#2F6F8F; --amber:#B0691A; --forest:#2C7650; --rust:#B0432E;
+  --ink:#1A1D21; --mute:#667078; --line:#E4E0D6; --line2:#EFEBE2;
+  --ok-bg:#E1F0E7; --wait-bg:#F8EBD6; --risk-bg:#F7E0DA; --info-bg:#E3EEF4;
+  --shadow:0 1px 2px rgba(16,37,61,.05),0 4px 14px rgba(16,37,61,.06); --radius:12px;
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --paper:#0E141A; --panel:#161E26; --panel2:#1A242D; --ink:#E8EBEE; --mute:#97A2AC; --line:#26313B; --line2:#202A33;
+  --primary:#3A83A8; --steel:#59A5C9; --amber:#E2A24F; --forest:#5DBF8A; --rust:#E6745F;
+  --ok-bg:#1A3226; --wait-bg:#3A2D18; --risk-bg:#3B201B; --info-bg:#1B2D39;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 18px rgba(0,0,0,.28); color-scheme:dark;
+}
+*{box-sizing:border-box;}
+html,body{margin:0; min-height:100%;}
+body{background:var(--paper); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:Georgia,'Times New Roman',serif; margin:0 0 4px; font-weight:600;}
+body.locked .app{display:none;}
+.app{display:grid; grid-template-columns:268px minmax(0,1fr); min-height:100vh;}
+
+/* ---------- SIDEBAR ---------- */
+.side{position:sticky; top:0; height:100vh; overflow-y:auto; overflow-x:hidden; background:linear-gradient(180deg,#0F2438 0%,#12293F 100%); color:#DCE7F0; display:flex; flex-direction:column; scrollbar-width:thin; scrollbar-color:#2C4762 transparent; z-index:60;}
+.brand{display:flex; gap:12px; align-items:center; padding:20px 18px 14px;}
+.logo{width:40px; height:40px; flex:0 0 40px; border-radius:11px; background:linear-gradient(135deg,#3F8BB0,#1D5A78); display:grid; place-items:center; font-family:Georgia,serif; font-size:21px; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,.25);}
+.brand b{display:block; font-family:Georgia,serif; font-size:20px; letter-spacing:.6px; color:#fff;}
+.brand small{display:block; font-size:11px; color:#8FA9BF; margin-top:1px;}
+#navwrap{padding:4px 10px 12px; flex:1;}
+.navgrp{margin-top:8px;}
+.grp-h{display:flex; align-items:center; justify-content:space-between; width:100%; border:0; background:none; color:#7F9AB2; font:inherit; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; font-weight:700; padding:8px 10px 6px; cursor:pointer;}
+.grp-h:hover{color:#B5CBDD;}
+.chev{font-style:normal; transition:transform .15s; font-size:10px;}
+.navgrp.closed .chev{transform:rotate(-90deg);}
+.navgrp.closed .grp-items{display:none;}
+.nav-btn{position:relative; display:flex; align-items:center; gap:11px; width:100%; padding:7px 10px; margin:1px 0; border:0; border-radius:9px; background:none; color:#BFD2E1; font:inherit; font-size:13.5px; text-align:left; cursor:pointer;}
+.nav-btn .ico{width:27px; height:27px; flex:0 0 27px; border-radius:8px; background:rgba(255,255,255,.07); display:grid; place-items:center; font-size:13px; color:#CFE1EF;}
+.nav-btn:hover{background:rgba(255,255,255,.06); color:#fff;}
+.nav-btn.active{background:rgba(63,139,176,.26); color:#fff; font-weight:600;}
+.nav-btn.active .ico{background:#3A83A8; color:#fff;}
+.nav-btn.active:before{content:''; position:absolute; left:-10px; top:8px; bottom:8px; width:3px; border-radius:0 3px 3px 0; background:#69B7DC;}
+.nav-btn:focus-visible,.grp-h:focus-visible{outline:2px solid #69B7DC; outline-offset:1px;}
+.badge{margin-left:auto; background:#C9573F; color:#fff; font-size:10.5px; font-weight:700; min-width:19px; height:19px; border-radius:10px; display:grid; place-items:center; padding:0 6px;}
+.side-foot{padding:14px 16px 16px; border-top:1px solid rgba(255,255,255,.09); display:flex; gap:10px; align-items:center;}
+.avatar{width:34px; height:34px; flex:0 0 34px; border-radius:50%; background:linear-gradient(135deg,#3F8BB0,#28607D); display:grid; place-items:center; font-weight:700; font-size:13px; color:#fff;}
+.side-foot .who{min-width:0; flex:1; font-size:12.5px; line-height:1.25;}
+.side-foot .who b{display:block; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.side-foot .who span{color:#8FA9BF; font-size:11.5px;}
+.side-foot button{border:1px solid rgba(255,255,255,.18); background:none; color:#BFD2E1; border-radius:8px; font:inherit; font-size:12px; padding:5px 9px; cursor:pointer;}
+.side-foot button:hover{background:rgba(255,255,255,.08); color:#fff;}
+
+/* ---------- HEADER + PAGE ---------- */
+.content{min-width:0; display:flex; flex-direction:column; min-height:100vh;}
+.hdr{position:sticky; top:0; z-index:40; background:var(--paper); border-bottom:1px solid var(--line); padding:12px 32px; display:flex; align-items:center; gap:14px;}
+.hdr h1{font-size:22px; margin:0; line-height:1.15;}
+.crumb{font-size:12px; color:var(--mute);}
+.hdr .sp{flex:1;}
+.burger{display:none; width:38px; height:38px; border:1px solid var(--line); background:var(--panel); border-radius:10px; font-size:18px; cursor:pointer; color:var(--ink);}
+.iconbtn{width:38px; height:38px; border:1px solid var(--line); background:var(--panel); border-radius:10px; cursor:pointer; font-size:16px; color:var(--ink);}
+.iconbtn:hover{border-color:var(--primary);}
+.page{padding:24px 32px 64px; width:100%; max-width:1560px;}
+.scrim{display:none;}
+
+/* ---------- BUTTONS / BASICS ---------- */
+button.btn,a.btn,label.btn{display:inline-flex; align-items:center; gap:6px; font:inherit; font-size:13px; font-weight:500; cursor:pointer; border:1px solid var(--line); background:var(--panel); color:var(--ink); padding:8px 14px; border-radius:9px; text-decoration:none; line-height:1.2;}
+button.btn:hover,label.btn:hover{border-color:var(--primary); color:var(--primary);}
+button.btn.primary{background:var(--primary); color:#fff; border-color:var(--primary);}
+button.btn.primary:hover{filter:brightness(1.08); color:#fff;}
+button.btn.danger{color:var(--rust); border-color:color-mix(in srgb,var(--rust) 35%,var(--line));}
+button.btn:disabled{opacity:.5; cursor:not-allowed;}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--primary); outline-offset:1px;}
+.note{color:var(--mute); font-size:12.5px; margin:6px 0 0;}
+.hr{border:none; border-top:1px solid var(--line); margin:16px 0;}
+.err{color:var(--rust); font-size:12.5px; margin-top:8px;}
+.toolbar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; align-items:center;}
+.toolbar .sp{flex:1;}
+.toolbar input[type=text],.toolbar select{padding:8px 12px; border:1px solid var(--line); border-radius:9px; font:inherit; font-size:13px; background:var(--panel); color:var(--ink); min-width:170px;}
+.toolbar input[type=text]{min-width:230px;}
+
+/* ---------- CARDS ---------- */
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin-bottom:20px;}
+.kpi{position:relative; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px 15px 22px; box-shadow:var(--shadow); overflow:hidden;}
+.kpi:before{content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--primary);}
+.kpi.t-risk:before{background:var(--rust);} .kpi.t-wait:before{background:var(--amber);} .kpi.t-ok:before{background:var(--forest);}
+.kpi .num{font-family:Georgia,serif; font-size:29px; line-height:1.1; font-weight:600;}
+.kpi .lbl{color:var(--mute); font-size:12.5px; margin-top:5px;}
+.kpi .sub{font-size:12px; margin-top:7px; color:var(--mute);}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-bottom:18px; box-shadow:var(--shadow); overflow-x:auto;}
+.panel h3{font-size:16px; margin-bottom:10px;}
+.two-col{display:grid; grid-template-columns:1.3fr 1fr; gap:18px;}
+.two-col>.panel{margin-bottom:18px;}
+.quick{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;}
+
+/* ---------- TABLES ---------- */
+table{width:100%; border-collapse:separate; border-spacing:0; font-size:13.3px;}
+th{position:sticky; top:0; z-index:2; background:var(--panel2); text-align:left; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--mute); font-weight:700; padding:11px 14px; border-bottom:1px solid var(--line); white-space:nowrap;}
+th.sortable{cursor:pointer; user-select:none;}
+th.sortable:hover{color:var(--ink);}
+th .arr{font-size:10px; margin-left:4px; color:var(--primary);}
+td{padding:11px 14px; border-bottom:1px solid var(--line2); vertical-align:middle;}
+tbody tr:hover td{background:var(--panel2);}
+tbody tr:last-child td{border-bottom:none;}
+td:first-child{white-space:nowrap;}
+td.acts{text-align:right; white-space:nowrap; position:sticky; right:0; background:var(--panel); box-shadow:-10px 0 10px -10px rgba(0,0,0,.14);}
+th.actcol{position:sticky; right:0; z-index:3; background:var(--panel2);}
+tbody tr:hover td.acts{background:var(--panel2);}
+td.trunc{max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.tpanel{padding:0; overflow:auto; max-height:calc(100vh - 250px);}
+.tpanel table{min-width:760px;}
+.tfoot{padding:10px 16px; font-size:12px; color:var(--mute); border-top:1px solid var(--line); background:var(--panel2); position:sticky; bottom:0; left:0;}
+.lnk{border:0; background:none; padding:0; font:inherit; font-weight:600; color:var(--primary); cursor:pointer; text-align:left;}
+.lnk:hover{text-decoration:underline;}
+.empty{padding:44px 20px; text-align:center; color:var(--mute);}
+.empty b{display:block; font-family:Georgia,serif; font-size:17px; color:var(--ink); margin-bottom:6px;}
+.tag{display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:999px; font-size:11.5px; font-weight:600; white-space:nowrap;}
+.tag:before{content:''; width:6px; height:6px; border-radius:50%; background:currentColor;}
+.tag.ok{background:var(--ok-bg); color:var(--forest);} .tag.wait{background:var(--wait-bg); color:var(--amber);} .tag.risk{background:var(--risk-bg); color:var(--rust);}
+.rowbtn{border:0; background:none; color:var(--primary); font:inherit; font-size:12.5px; font-weight:500; padding:4px 8px; border-radius:7px; cursor:pointer; white-space:nowrap; text-decoration:none; display:inline-block;}
+.rowbtn:hover{background:var(--info-bg);}
+.rowbtn.danger{color:var(--rust);} .rowbtn.danger:hover{background:var(--risk-bg);}
+
+/* ---------- MODALS + FORMS ---------- */
+.overlay{position:fixed; inset:0; background:rgba(9,20,32,.55); backdrop-filter:blur(2px); display:none; align-items:flex-start; justify-content:center; padding:24px 16px; z-index:100; overflow:auto;}
+.overlay.show{display:flex;}
+.box{background:var(--panel); border-radius:14px; padding:24px; width:100%; max-width:460px; box-shadow:0 20px 60px rgba(0,0,0,.35);}
+.box.wide{max-width:880px; padding:0; display:flex; flex-direction:column; max-height:calc(100vh - 48px);}
+.fhead{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:20px 26px 14px; border-bottom:1px solid var(--line);}
+.fhead h3{font-size:19px; margin:0;}
+.x{border:0; background:none; font-size:26px; line-height:1; color:var(--mute); cursor:pointer; padding:0 4px;}
+.x:hover{color:var(--ink);}
+.fbody{overflow:auto; padding:8px 26px 18px; flex:1;}
+.fgrid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 18px;}
+.fsec{grid-column:1/-1; margin-top:14px; padding-bottom:6px; border-bottom:1px solid var(--line2); font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--primary);}
+.factions{display:flex; gap:8px; justify-content:flex-end; padding:14px 26px; border-top:1px solid var(--line); background:var(--panel2); border-radius:0 0 14px 14px;}
+.field{margin-bottom:12px;}
+.fgrid .field{margin:0;}
+.field.full{grid-column:1/-1;}
+.field label{display:block; font-size:12.5px; font-weight:600; color:var(--mute); margin-bottom:5px;}
+.field label i{color:var(--rust); font-style:normal; margin-left:2px;}
+.field input,.field textarea,.field select{width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:9px; font:inherit; font-size:14px; background:var(--panel); color:var(--ink);}
+.field textarea{min-height:76px; resize:vertical;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--primary); box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 20%,transparent); outline:none;}
+.field.err input,.field.err select,.field.err textarea{border-color:var(--rust);}
+.ferr{color:var(--rust); font-size:12px; margin-top:4px; min-height:0;}
+.help{color:var(--mute); font-size:11.5px; margin-top:4px;}
+.dsec h4{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--primary); margin:16px 0 8px; padding-bottom:6px; border-bottom:1px solid var(--line2); font-family:inherit;}
+.dgrid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 22px; margin:0;}
+.dgrid div.full{grid-column:1/-1;}
+.dgrid dt{font-size:11.5px; color:var(--mute); margin-bottom:2px;}
+.dgrid dd{margin:0; font-size:14px; white-space:pre-wrap; word-break:break-word;}
+.thumbs{display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;}
+.thumbs a{display:block; border:1px solid var(--line); border-radius:9px; overflow:hidden; font-size:12px; color:var(--ink); text-decoration:none; background:var(--panel2);}
+.thumbs img{display:block; width:110px; height:80px; object-fit:cover;}
+.thumbs span{display:block; padding:6px 9px;}
+.box .actions{display:flex; gap:8px; justify-content:flex-end; margin-top:16px; flex-wrap:wrap;}
+.log{font-size:12px; color:var(--mute); margin-top:8px; white-space:pre-wrap;}
+
+/* ---------- TOASTS ---------- */
+#toasts{position:fixed; right:20px; bottom:20px; z-index:300; display:flex; flex-direction:column; gap:8px;}
+.toast{background:#12283C; color:#fff; padding:11px 16px; border-radius:10px; font-size:13.5px; box-shadow:0 8px 24px rgba(0,0,0,.3); border-left:4px solid #4CB27F; transition:opacity .35s, transform .35s;}
+.toast.err{border-left-color:#E0664F;}
+.toast.out{opacity:0; transform:translateY(8px);}
+
+/* ---------- LOGIN ---------- */
+.login-wrap{position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center; padding:20px; background:radial-gradient(1100px 600px at 20% 10%,#1D4666 0%,transparent 60%),linear-gradient(160deg,#0C1D2E,#132C44);}
+.login-wrap.show{display:flex;}
+.login-card{background:var(--panel); padding:32px 30px 26px; border-radius:16px; width:100%; max-width:390px; box-shadow:0 30px 80px rgba(0,0,0,.45);}
+.login-card .logo{margin-bottom:14px;}
+.login-card h3{font-size:24px; margin-bottom:4px;}
+
+/* ---------- MISC ---------- */
+.region-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;}
+.regionbox{border:1px solid var(--line); border-radius:11px; padding:14px; background:var(--panel2);}
+.regionbox b{font-family:Georgia,serif; font-size:22px; display:block;}
+.bars{display:flex; align-items:flex-end; gap:10px; height:130px; padding:20px 0 22px;}
+.bar{flex:1; background:linear-gradient(var(--primary),#1B4D66); border-radius:5px 5px 0 0; position:relative; min-height:3px;}
+.bar span{position:absolute; top:-18px; left:0; right:0; text-align:center; font-size:11px; color:var(--mute);}
+.bar em{position:absolute; bottom:-20px; left:0; right:0; text-align:center; font-size:11px; font-style:normal; color:var(--mute);}
+.hbar{display:grid; grid-template-columns:minmax(120px,190px) 1fr 34px; gap:10px; align-items:center; font-size:13px; margin:8px 0;}
+.hbar .tr{height:9px; background:var(--line2); border-radius:6px; overflow:hidden;}
+.hbar .tr i{display:block; height:100%; background:linear-gradient(90deg,var(--primary),#59A5C9); border-radius:6px;}
+.item-row{display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--line2); font-size:13px;}
+.item-row:last-child{border-bottom:none;}
+.item-row .t{color:var(--mute); font-size:11.5px; white-space:nowrap;}
+input[type=file]{font:inherit; font-size:13px; max-width:100%;}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:1000px){
+  .app{grid-template-columns:1fr;}
+  .side{position:fixed; left:0; top:0; bottom:0; width:280px; transform:translateX(-102%); transition:transform .22s ease;}
+  body.drawer .side{transform:none; box-shadow:0 0 40px rgba(0,0,0,.5);}
+  body.drawer .scrim{display:block; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:55;}
+  .burger{display:block;}
+  .hdr{padding:10px 14px;} .page{padding:16px 14px 56px;}
+  .two-col{grid-template-columns:1fr;}
+  .fgrid,.dgrid{grid-template-columns:1fr;}
+  .fhead,.fbody,.factions{padding-left:16px; padding-right:16px;}
+  .tpanel{max-height:none;}
+  .hdr h1{font-size:18px;}
+  .hide-m{display:none !important;}
+}
+@media print{
+  .side,.hdr,.toolbar,.rowbtn,.quick,#toasts,.scrim{display:none !important;}
+  .app{display:block;} .page{padding:0;} .panel,.kpi{box-shadow:none;} .tpanel{max-height:none; overflow:visible;}
+}
+</style>
+</head>
+<body class="locked">
+
+<div class="login-wrap" id="loginWrap"><div class="login-card">
+  <div class="logo">Š</div>
+  <h3>ŠČIT</h3>
+  <p class="note" style="margin:0 0 18px">Zavarovalniški informacijski sistem — prijava</p>
+  <div class="field"><label>Uporabniško ime</label><input id="li_user" placeholder="npr. admin" autocomplete="username" onkeydown="if(event.key==='Enter')tryLogin()"></div>
+  <div class="field"><label>Geslo</label><input id="li_pass" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')tryLogin()"></div>
+  <button class="btn primary" style="width:100%;justify-content:center;padding:11px" onclick="tryLogin()">Prijava</button>
+  <div class="err" id="li_err"></div>
+  <p class="note" style="margin-top:14px">Demo dostop: <b>admin</b> / <b>admin123</b>. Uporabnike urejaš v modulu Uporabniki. Prijava je samo za razločevanje vlog, ne pravo varovanje podatkov.</p>
+</div></div>
+
+<div class="app">
+  <nav class="side" id="side">
+    <div class="brand"><div class="logo">Š</div><div><b>ŠČIT</b><small>Zavarovalniški IS</small></div></div>
+    <div id="navwrap"></div>
+    <div class="side-foot" id="sidefoot"></div>
+  </nav>
+  <div class="content">
+    <header class="hdr">
+      <button class="burger" onclick="document.body.classList.toggle('drawer')" aria-label="Meni">☰</button>
+      <div><div class="crumb" id="pageCrumb"></div><h1 id="pageTitle"></h1></div>
+      <div class="sp"></div>
+      <button class="iconbtn" id="themeBtn" onclick="toggleTheme()" title="Svetla / temna tema" aria-label="Tema">☾</button>
+      <button class="btn primary" id="adminBtn" onclick="openAdmin()">Admin</button>
+    </header>
+    <main id="main" class="page"></main>
+  </div>
+  <div class="scrim" onclick="document.body.classList.remove('drawer')"></div>
+</div>
+
+<div class="overlay" id="formOverlay"><div class="box" id="formBox"></div></div>
+<div class="overlay" id="adminOverlay"><div class="box" id="adminBox" style="max-width:580px"></div></div>
+<div id="toasts"></div>
+
+<script>
+/* ================= VLOGE ================= */
+const ROLES = ['admin','vodja','zastopnik','racunovodja','cenilec'];
+let session = null;
+try{ session = JSON.parse(sessionStorage.getItem('zavis_session')); }catch(e){}
+
+/* ================= SHEMA MODULOV (polja obrazcev) ================= */
+/* Lastnosti polja: k=ključ, l=naziv, type=text|textarea|select|date|time|number|money|email|tel|password,
+   opts=možnosti, dl=predlogi iz podatkov, req=obvezno, sec=naslov razdelka, tag=prikaz kot oznaka,
+   auto=samodejna številka, def=privzeta vrednost, uniq=enolična vrednost, ph=namig */
+const F=(k,l,o)=>Object.assign({k,l},o||{});
+const OPT={
+  produkt:['Avtomobilsko zavarovanje (AO)','Avtomobilsko kasko','Flotno avtomobilsko','Življenjsko zavarovanje','Zdravstveno dopolnilno','Premoženjsko (stanovanje/hiša)','Premoženjsko','Premoženjsko (podjetje)','Potovalno zavarovanje','Kmetijsko zavarovanje','Kibernetsko zavarovanje','Pokojninsko zavarovanje','Nezgodno zavarovanje','Odgovornostno zavarovanje'],
+  skupina:['Avto','Življenje','Zdravje','Premoženje','Potovanja','Kmetijstvo','Kibernetska varnost','Pokojnina','Nezgoda','Odgovornost'],
+  regija:['Ljubljana','Maribor','Celje','Koper','Kranj','Novo mesto','Murska Sobota','Nova Gorica','Ptuj','Velenje','Drugo'],
+  placilo:['Trajnik','SEPA direktna obremenitev','Kartica','Položnica / e-račun','Bančno nakazilo','Gotovina'],
+  kanal:['Poslovalnica','Zastopnik','Splet','Mobilna aplikacija','Partner (banka/avtohiša)','Telefon'],
+  vir:['Spletni obrazec','Priporočilo','Telefon','Sejem / dogodek','Zastopnik','Partner','Oglaševanje','Drugo'],
+  oddelek:['Prodaja','Škodni sektor','Finance','IT','Kadri','Pravna služba','Aktuarstvo','Uprava','Skladnost','Podpora strankam'],
+  ddv:['22%','9,5%','5%','0%'],
+};
+const schemas = {
+  police:{label:'Zavarovalne police', attach:true,
+    cols:['id','stranka','produkt','regija','premija','status','potek'],
+    fields:[
+      F('id','Št. police',{req:1,uniq:1,auto:'POL-',sec:'Osnovni podatki'}),
+      F('stranka','Zavarovalec (stranka)',{req:1,dl:'stranke'}),
+      F('produkt','Zavarovalni produkt',{type:'select',opts:OPT.produkt,req:1}),
+      F('vrstaPolice','Vrsta',{type:'select',opts:['Nova polica','Obnova','Aneks / sprememba'],def:'Nova polica'}),
+      F('status','Status',{type:'select',tag:1,req:1,def:'aktivna',opts:['aktivna','v obnovi','tvegano','v zastoju','preklicana','potekla']}),
+      F('regija','Regija',{type:'select',opts:OPT.regija}),
+      F('predmet','Predmet zavarovanja',{sec:'Predmet in kritje',ph:'Reg. št. vozila / naslov nepremičnine / zavarovana oseba'}),
+      F('kritje','Kritje',{ph:'npr. AO + polna kasko + asistenca'}),
+      F('zavarovalnaVsota','Zavarovalna vsota',{type:'money'}),
+      F('fransiza','Franšiza',{type:'money'}),
+      F('opisPredmeta','Opis predmeta / posebnosti',{type:'textarea',full:1}),
+      F('datumZacetka','Začetek zavarovanja',{type:'date',def:'today',sec:'Zavarovalno obdobje'}),
+      F('potek','Poteče',{type:'date'}),
+      F('premija','Letna premija',{type:'money',sec:'Premija in plačilo',ph:'0,00 €'}),
+      F('popust','Popust (%)',{type:'number',min:0,max:100,step:'0.1'}),
+      F('nacinPlacila','Način plačila',{type:'select',opts:OPT.placilo}),
+      F('obroki','Obročnost',{type:'select',opts:['letno','polletno','četrtletno','mesečno']}),
+      F('zastopnik','Zastopnik',{dl:'zastopniki',sec:'Prodaja'}),
+      F('kanal','Prodajni kanal',{type:'select',opts:OPT.kanal}),
+      F('podpis','E-podpis',{ph:'Izpolni se ob podpisu (gumb "Podpiši")'}),
+      F('opombe','Opombe',{type:'textarea',full:1,sec:'Opombe'}),
+    ]},
+  skode:{label:'Škodni zahtevki', attach:true,
+    cols:['id','stranka','vrsta','cenilec','vrednost','faza','prioriteta','dnevi'],
+    fields:[
+      F('id','Št. zahtevka',{req:1,uniq:1,auto:'ŠK-',sec:'Zahtevek'}),
+      F('stranka','Zavarovanec (stranka)',{req:1,dl:'stranke'}),
+      F('policaId','Št. police',{dl:'police'}),
+      F('vrsta','Vrsta škode',{type:'select',req:1,opts:['Trčenje','Požar','Požar skladišča','Poplava','Toča / neurje','Vlom','Kraja','Steklo','Zdravstveni strošek','Odgovornost do tretjih','Potovalna škoda','Kibernetski incident','Drugo']}),
+      F('faza','Faza',{type:'select',tag:1,req:1,def:'prijavljeno',opts:['prijavljeno','v obravnavi','cenitev','preiskava','odobreno','izplačano','zavrnjeno','zaprto']}),
+      F('prioriteta','Prioriteta',{type:'select',tag:1,def:'redno',opts:['redno','nujno']}),
+      F('cenilec','Cenilec',{dl:'zaposleni'}),
+      F('datumDogodka','Datum dogodka',{type:'date',sec:'Dogodek'}),
+      F('datumPrijave','Datum prijave',{type:'date',def:'today'}),
+      F('krajDogodka','Kraj dogodka'),
+      F('krivda','Odgovornost za škodo',{type:'select',opts:['Zavarovanec','Tretja oseba','Skupna odgovornost','Neznano']}),
+      F('policija','Policijsko poročilo',{type:'select',opts:['Ni potrebno','Da – poročilo priloženo','Da – v teku','Ne']}),
+      F('nasprotnaStran','Nasprotna stran / prizadete osebe'),
+      F('opisDogodka','Opis dogodka',{type:'textarea',full:1}),
+      F('vrednost','Ocenjena vrednost škode',{type:'money',sec:'Finance'}),
+      F('dnevi','Dni odprto',{type:'number',min:0,step:'1',help:'Če pustiš prazno, se izračuna iz datuma prijave.'}),
+      F('opombe','Opombe',{type:'textarea',full:1,sec:'Opombe'}),
+    ]},
+  stranke:{label:'Stranke (CRM)', attach:true,
+    cols:['ime','segment','email','telefon','regija','police','ltv','tveganje'],
+    fields:[
+      F('ime','Ime in priimek / naziv podjetja',{req:1,uniq:1,sec:'Osnovni podatki'}),
+      F('segment','Vrsta stranke',{type:'select',req:1,def:'Fizična oseba',opts:['Fizična oseba','Poslovna stranka','Samostojni podjetnik','Kmetijsko gospodarstvo','Javni sektor / društvo']}),
+      F('status','Status stranke',{type:'select',tag:1,def:'aktivna',opts:['aktivna','potencialna','neaktivna']}),
+      F('datumRojstva','Datum rojstva / ustanovitve',{type:'date'}),
+      F('davcnaSt','Davčna številka'),
+      F('maticnaSt','Matična številka (podjetja)'),
+      F('telefon','Telefon',{type:'tel',ph:'+386 ...',sec:'Kontakt'}),
+      F('email','E-naslov',{type:'email'}),
+      F('kontaktnaOseba','Kontaktna oseba'),
+      F('naslov','Naslov (ulica in hišna št.)'),
+      F('postnaSt','Poštna številka'),
+      F('kraj','Kraj'),
+      F('regija','Regija',{type:'select',opts:OPT.regija}),
+      F('drzava','Država',{def:'Slovenija'}),
+      F('prefKanal','Želen način komunikacije',{type:'select',sec:'Komunikacija in soglasja',opts:['E-pošta','Telefon','SMS','Pošta']}),
+      F('jezik','Jezik',{type:'select',def:'slovenščina',opts:['slovenščina','angleščina','nemščina','italijanščina','hrvaščina']}),
+      F('trzenje','Soglasje za trženje',{type:'select',opts:['Da','Ne']}),
+      F('vir','Vir pridobitve',{type:'select',opts:OPT.vir}),
+      F('police','Št. polic',{type:'number',min:0,step:'1',sec:'Vrednost in tveganje'}),
+      F('ltv','Vrednost stranke (LTV)',{type:'money'}),
+      F('tveganje','Ocena tveganja',{type:'select',tag:1,def:'nizko',opts:['nizko','srednje','visoko']}),
+      F('zastopnik','Skrbnik stranke',{dl:'zastopniki'}),
+      F('opombe','Opombe',{type:'textarea',full:1,sec:'Opombe'}),
+    ]},
+  zastopniki:{label:'Zastopniki in mreža',
+    cols:['ime','tip','regija','sklenitve','uspesnost','provizija','status'],
+    fields:[
+      F('ime','Enota / zastopnik',{req:1,uniq:1,sec:'Osnovni podatki'}),
+      F('tip','Tip',{type:'select',req:1,opts:['Lastna poslovalnica','Zunanji zastopnik','Vezani zastopnik','Neposredna prodaja','Partner (banka/avtohiša)','Posrednik']}),
+      F('status','Status',{type:'select',tag:1,def:'aktiven',opts:['aktiven','v uvajanju','neaktiven']}),
+      F('sifra','Št. pogodbe / šifra'),
+      F('licenca','Št. licence (AZN)'),
+      F('datumPogodbe','Datum pogodbe',{type:'date'}),
+      F('regija','Regija',{type:'select',opts:OPT.regija,sec:'Kontakt in območje'}),
+      F('email','E-naslov',{type:'email'}),
+      F('telefon','Telefon',{type:'tel'}),
+      F('nadrejeni','Nadrejeni',{dl:'zaposleni'}),
+      F('sklenitve','Sklenitve (mesec)',{type:'number',min:0,step:'1',sec:'Uspešnost in provizija'}),
+      F('uspesnost','Uspešnost',{ph:'npr. 87%'}),
+      F('provizija','Provizija (%)',{type:'number',min:0,max:100,step:'0.1'}),
+      F('opombe','Opombe',{type:'textarea',full:1,sec:'Opombe'}),
+    ]},
+  produkti:{label:'Produkti',
+    cols:['ime','skupina','sifra','osnovnaPremija','status'],
+    fields:[
+      F('ime','Naziv produkta',{req:1,uniq:1,sec:'Osnovni podatki'}),
+      F('skupina','Skupina',{type:'select',req:1,opts:OPT.skupina}),
+      F('sifra','Šifra produkta'),
+      F('status','Status',{type:'select',tag:1,def:'aktiven',opts:['aktiven','v pripravi','ukinjen']}),
+      F('osnovnaPremija','Premija od',{type:'money'}),
+      F('veljaOd','Velja od',{type:'date'}),
+      F('opis','Opis',{type:'textarea',full:1,sec:'Vsebina'}),
+      F('kritja','Vključena kritja',{type:'textarea',full:1}),
+      F('izkljucitve','Izključitve',{type:'textarea',full:1}),
+      F('pogoji','Splošni pogoji (št. dokumenta)',{sec:'Pogoji'}),
+      F('starostMin','Najnižja starost',{type:'number',min:0,step:'1'}),
+      F('starostMax','Najvišja starost',{type:'number',min:0,step:'1'}),
+      F('pozavarovanje','Pozavarovano',{type:'select',opts:['Da','Ne']}),
+      F('opombe','Opombe',{type:'textarea',full:1}),
+    ]},
+  premije:{label:'Premije in plačila',
+    cols:['polica','znesek','zapadlost','datum','nacin','status'],
+    fields:[
+      F('polica','Št. police',{req:1,dl:'police',sec:'Plačilo'}),
+      F('znesek','Znesek',{type:'money',req:1}),
+      F('zapadlost','Zapadlost',{type:'date'}),
+      F('datum','Datum plačila',{type:'date'}),
+      F('nacin','Način plačila',{type:'select',opts:OPT.placilo}),
+      F('status','Status',{type:'select',tag:1,req:1,def:'odprto',opts:['plačano','odprto','v zamudi','delno plačano','stornirano']}),
+      F('obrok','Obrok',{ph:'npr. 2/4'}),
+      F('racunSt','Št. računa',{dl:'racuni'}),
+      F('sklic','Sklic / referenca'),
+      F('opombe','Opombe',{type:'textarea',full:1,sec:'Opombe'}),
+    ]},
+  pritozbe:{label:'Pritožbe strank', attach:true,
+    cols:['stevilka','stranka','kategorija','datum','rokOdgovora','status','zadolzen'],
+    fields:[
+      F('stevilka','Št. pritožbe',{auto:'PR-',uniq:1,sec:'Pritožba'}),
+      F('stranka','Stranka',{req:1,dl:'stranke'}),
+      F('datum','Datum prejema',{type:'date',req:1,def:'today'}),
+      F('kanal','Kanal',{type:'select',opts:['E-pošta','Telefon','Pisno','Osebno','Spletni obrazec','Portal']}),
+      F('kategorija','Kategorija',{type:'select',opts:['Škoda','Premija / račun','Storitev','Podatki / GDPR','Zastopnik','Drugo']}),
+      F('povezava','Povezano (št. police/škode)',{dl:'povezave'}),
+      F('status','Status',{type:'select',tag:1,req:1,def:'prejeto',opts:['prejeto','v obravnavi','eskalirano','rešeno','zavrnjeno']}),
+      F('zadolzen','Zadolžena oseba',{dl:'zaposleni'}),
+      F('rokOdgovora','Rok odgovora',{type:'date'}),
+      F('razlog','Opis pritožbe',{type:'textarea',full:1,req:1,sec:'Vsebina'}),
+      F('resitev','Rešitev / odgovor stranki',{type:'textarea',full:1}),
+    ]},
+  naloge:{label:'Naloge in obnove',
+    cols:['naslov','zadolzen','rok','prioriteta','status','povezava'],
+    fields:[
+      F('naslov','Naloga',{req:1,sec:'Naloga'}),
+      F('kategorija','Kategorija',{type:'select',opts:['Obnova police','Klic stranke','Škoda','Finance','Administracija','Drugo']}),
+      F('zadolzen','Zadolžena oseba',{dl:'zaposleni'}),
+      F('rok','Rok',{type:'date'}),
+      F('prioriteta','Prioriteta',{type:'select',def:'običajna',opts:['nizka','običajna','visoka','nujna']}),
+      F('status','Status',{type:'select',tag:1,req:1,def:'odprto',opts:['odprto','v teku','zaključeno']}),
+      F('povezava','Povezano (št. police/škode)',{dl:'povezave'}),
+      F('opis','Opis',{type:'textarea',full:1}),
+    ]},
+  racuni:{label:'Računi', attach:true,
+    cols:['id','prejemnik','znesek','ddv','datumIzdaje','rokPlacila','status'],
+    fields:[
+      F('id','Št. računa',{req:1,uniq:1,auto:()=>'RA-'+new Date().getFullYear()+'-',sec:'Račun'}),
+      F('prejemnik','Prejemnik (stranka)',{req:1,dl:'stranke'}),
+      F('davcnaSt','Davčna številka prejemnika'),
+      F('polica','Povezana polica',{dl:'police'}),
+      F('datumIzdaje','Datum izdaje',{type:'date',req:1,def:'today'}),
+      F('rokPlacila','Rok plačila',{type:'date'}),
+      F('osnova','Osnova (brez DDV)',{type:'money',sec:'Zneski'}),
+      F('ddv','Stopnja DDV',{type:'select',def:'22%',opts:OPT.ddv}),
+      F('znesek','Znesek z DDV',{type:'money',req:1,help:'Če pustiš prazno, se izračuna iz osnove in DDV.'}),
+      F('status','Status',{type:'select',tag:1,req:1,def:'odprto',opts:['odprto','plačano','v zamudi','delno plačano','stornirano']}),
+      F('nacinPlacila','Način plačila',{type:'select',opts:OPT.placilo}),
+      F('sklic','Sklic / referenca'),
+      F('opis','Opis storitve',{type:'textarea',full:1,sec:'Opis'}),
+    ]},
+  zaposleni:{label:'Zaposleni (kadri)',
+    cols:['ime','oddelek','vloga','lokacija','datumZaposlitve','status'],
+    fields:[
+      F('ime','Ime in priimek',{req:1,uniq:1,sec:'Osnovni podatki'}),
+      F('oddelek','Oddelek',{type:'select',req:1,opts:OPT.oddelek}),
+      F('vloga','Delovno mesto'),
+      F('status','Status',{type:'select',tag:1,req:1,def:'aktiven',opts:['aktiven','v poskusni dobi','odsoten','izstopil']}),
+      F('tipPogodbe','Vrsta pogodbe',{type:'select',opts:['Nedoločen čas','Določen čas','Pogodba o delu','Študentsko delo']}),
+      F('datumZaposlitve','Datum zaposlitve',{type:'date'}),
+      F('email','Službeni e-naslov',{type:'email',sec:'Kontakt in organizacija'}),
+      F('telefon','Telefon',{type:'tel'}),
+      F('lokacija','Lokacija',{type:'select',opts:OPT.regija}),
+      F('nadrejeni','Nadrejeni',{dl:'zaposleni'}),
+      F('licenca','Št. licence / pooblastila'),
+      F('opombe','Opombe',{type:'textarea',full:1,sec:'Opombe'}),
+    ]},
+  stroski:{label:'Stroški poslovanja', attach:true,
+    cols:['kategorija','dobavitelj','opis','znesek','datum','status'],
+    fields:[
+      F('kategorija','Kategorija',{type:'select',req:1,sec:'Strošek',opts:['Pozavarovanje','IT in razvoj','Marketing','Najemnine in poslovni prostori','Plače in prispevki','Provizije','Odškodnine','Pravne in svetovalne storitve','Potni stroški','Izobraževanje','Drugo']}),
+      F('opis','Opis',{req:1}),
+      F('dobavitelj','Dobavitelj'),
+      F('stroskovnoMesto','Stroškovno mesto',{type:'select',opts:OPT.oddelek}),
+      F('znesek','Znesek',{type:'money',req:1,sec:'Zneski in plačilo'}),
+      F('ddv','Stopnja DDV',{type:'select',opts:OPT.ddv}),
+      F('datum','Datum',{type:'date',req:1,def:'today'}),
+      F('racunSt','Št. računa dobavitelja'),
+      F('status','Status',{type:'select',tag:1,req:1,def:'odprto',opts:['odprto','v odobritvi','plačano','zavrnjeno']}),
+      F('opombe','Opombe',{type:'textarea',full:1,sec:'Opombe'}),
+    ]},
+  kpiTrend:{label:'KPI po mesecih',
+    cols:['mesec','prihodki','skodninost','kombinirani','novePolice','stSkod'],
+    fields:[
+      F('mesec','Mesec',{req:1,ph:'npr. Sep 2026',sec:'Kazalniki'}),
+      F('prihodki','Prihodki (mio €)',{type:'number',step:'0.1',min:0}),
+      F('skodninost','Škodninost (%)',{type:'number',step:'0.1',min:0,max:200}),
+      F('kombinirani','Kombinirani količnik (%)',{type:'number',step:'0.1',min:0,max:200}),
+      F('novePolice','Nove police',{type:'number',step:'1',min:0}),
+      F('stSkod','Število škod',{type:'number',step:'1',min:0}),
+      F('opombe','Opombe',{type:'textarea',full:1}),
+    ]},
+  uporabniki:{label:'Uporabniki',
+    cols:['ime','uporabnisko','vloga','status','email'],
+    fields:[
+      F('ime','Ime in priimek',{req:1,sec:'Račun'}),
+      F('uporabnisko','Uporabniško ime',{req:1,uniq:1}),
+      F('geslo','Geslo',{type:'password',req:1}),
+      F('vloga','Vloga',{type:'select',req:1,opts:['admin','vodja','zastopnik','racunovodja','cenilec']}),
+      F('status','Status',{type:'select',tag:1,req:1,def:'aktiven',opts:['aktiven','neaktiven']}),
+      F('email','E-naslov',{type:'email'}),
+      F('telefon','Telefon',{type:'tel'}),
+      F('opombe','Opombe',{type:'textarea',full:1}),
+    ]},
+  leads:{label:'Prodajni lijak',
+    cols:['ime','faza','vir','vrednost','verjetnost','zadolzen','datumNaslednjegaKoraka'],
+    fields:[
+      F('ime','Naziv / potencialna stranka',{req:1,sec:'Potencialna stranka'}),
+      F('kontaktnaOseba','Kontaktna oseba'),
+      F('email','E-naslov',{type:'email'}),
+      F('telefon','Telefon',{type:'tel'}),
+      F('faza','Faza',{type:'select',tag:1,req:1,def:'nov stik',sec:'Prodajni postopek',opts:['nov stik','v pogovoru','ponudba poslana','pogajanje','sklenjeno','izgubljeno']}),
+      F('vir','Vir',{type:'select',opts:OPT.vir}),
+      F('zanima','Zanima ga produkt',{type:'select',opts:OPT.skupina}),
+      F('vrednost','Ocenjena vrednost',{type:'money'}),
+      F('verjetnost','Verjetnost sklenitve (%)',{type:'number',min:0,max:100,step:'5'}),
+      F('zadolzen','Zadolžena oseba',{dl:'zastopniki'}),
+      F('naslednjiKorak','Naslednji korak'),
+      F('datumNaslednjegaKoraka','Datum naslednjega koraka',{type:'date'}),
+      F('razlogIzgube','Razlog izgube',{help:'Izpolni le pri fazi "izgubljeno".'}),
+      F('opombe','Opombe',{type:'textarea',full:1,sec:'Opombe'}),
+    ]},
+  gdpr:{label:'GDPR soglasja',
+    cols:['stranka','vrstaSoglasja','pravnaPodlaga','datumSoglasja','rokHrambe','status'],
+    fields:[
+      F('stranka','Stranka',{req:1,dl:'stranke',sec:'Soglasje'}),
+      F('vrstaSoglasja','Namen obdelave',{type:'select',req:1,opts:['Obdelava za sklenitev police','Trženjska komunikacija','Profiliranje','Posredovanje tretjim osebam','Obdelava zdravstvenih podatkov','Telematski podatki','Drugo']}),
+      F('pravnaPodlaga','Pravna podlaga',{type:'select',opts:['Soglasje','Pogodba','Zakonska obveznost','Legitimni interes']}),
+      F('kanal','Način pridobitve',{type:'select',opts:['Pisno','Spletni obrazec','Osebno','Telefon']}),
+      F('datumSoglasja','Datum soglasja',{type:'date',req:1,def:'today'}),
+      F('rokHrambe','Rok hrambe podatkov',{type:'date'}),
+      F('status','Status',{type:'select',tag:1,req:1,def:'aktivno',opts:['aktivno','preklicano','poteklo']}),
+      F('datumPreklica','Datum preklica',{type:'date'}),
+      F('opombe','Opombe',{type:'textarea',full:1}),
+    ]},
+  strankeRacuni:{label:'Dostopi za stranke',
+    cols:['ime','uporabnisko','poveznaStranka','status','email'],
+    fields:[
+      F('ime','Ime in priimek',{req:1,sec:'Dostop do portala'}),
+      F('uporabnisko','Uporabniško ime',{req:1,uniq:1}),
+      F('geslo','Geslo',{type:'password',req:1}),
+      F('poveznaStranka','Povezana stranka (ime v CRM)',{req:1,dl:'stranke'}),
+      F('status','Status',{type:'select',tag:1,req:1,def:'aktiven',opts:['aktiven','neaktiven']}),
+      F('email','E-naslov',{type:'email'}),
+    ]},
+  tarife:{label:'Tarifne tabele',
+    cols:['kategorija','vrednost','faktor','opomba'],
+    fields:[
+      F('kategorija','Kategorija',{type:'select',req:1,sec:'Tarifni element',opts:['osnova','starost','regija','vozilo','kritje','fransiza'],help:'"osnova" = osnovna premija v €, ostalo so množitelji.'}),
+      F('vrednost','Vrednost / opis',{req:1}),
+      F('faktor','Faktor (pri "osnova" znesek v €)',{req:1,ph:'npr. 1.2'}),
+      F('opomba','Opomba'),
+    ]},
+  ponudbe:{label:'Ponudbe', attach:true,
+    cols:['id','stranka','produkt','premija','veljavnost','status'],
+    fields:[
+      F('id','Št. ponudbe',{req:1,uniq:1,auto:()=>'PON-'+new Date().getFullYear()+'-',sec:'Ponudba'}),
+      F('stranka','Stranka / potencialna stranka',{req:1,dl:'kontakti'}),
+      F('produkt','Produkt',{req:1,dl:'produkti'}),
+      F('kritje','Kritje'),
+      F('fransiza','Franšiza',{type:'money'}),
+      F('premija','Letna premija',{type:'money',req:1}),
+      F('popust','Popust (%)',{type:'number',min:0,max:100,step:'0.1'}),
+      F('datumIzdaje','Datum izdaje',{type:'date',def:'today'}),
+      F('veljavnost','Velja do',{type:'date'}),
+      F('zastopnik','Zastopnik',{dl:'zastopniki'}),
+      F('status','Status',{type:'select',tag:1,req:1,def:'osnutek',opts:['osnutek','poslana','sprejeta','zavrnjena','potekla']}),
+      F('opombe','Opombe',{type:'textarea',full:1}),
+    ]},
+  rezerve:{label:'Škodne rezerve in regresi',
+    cols:['skoda','povzrocitelj','rezerva','izplacano','regresZahtevek','regresPrejet','status'],
+    fields:[
+      F('skoda','Št. škode',{req:1,dl:'skode',sec:'Rezerva'}),
+      F('povzrocitelj','Povzročitelj / regresni zavezanec'),
+      F('datumOdprtja','Datum odprtja',{type:'date',def:'today'}),
+      F('status','Status',{type:'select',tag:1,req:1,def:'odprto',opts:['odprto','deloma','zaprto']}),
+      F('rezerva','Rezervacija',{type:'money',sec:'Zneski'}),
+      F('izplacano','Izplačano',{type:'money'}),
+      F('regresZahtevek','Regresni zahtevek',{type:'money'}),
+      F('regresPrejet','Regres prejet',{type:'money'}),
+      F('datumRegresa','Datum zadnjega regresa',{type:'date'}),
+      F('opombe','Opombe',{type:'textarea',full:1}),
+    ]},
+  termini:{label:'Termini in terenski obiski',
+    cols:['datum','ura','vrsta','povezava','oseba','lokacija','status'],
+    fields:[
+      F('datum','Datum',{type:'date',req:1,sec:'Termin'}),
+      F('ura','Ura',{type:'time'}),
+      F('trajanje','Trajanje (min)',{type:'number',min:0,step:'5'}),
+      F('vrsta','Vrsta',{type:'select',req:1,opts:['Ogled škode','Cenitev','Obisk stranke','Podpis pogodbe','Sestanek','Drugo']}),
+      F('povezava','Povezano (št. škode/police)',{dl:'povezave'}),
+      F('oseba','Zadolžena oseba',{dl:'zaposleni'}),
+      F('lokacija','Lokacija'),
+      F('kontakt','Kontakt na terenu',{type:'tel'}),
+      F('status','Status',{type:'select',tag:1,req:1,def:'načrtovano',opts:['načrtovano','opravljeno','preloženo','odpovedano']}),
+      F('opombe','Opombe',{type:'textarea',full:1}),
+    ]},
+  nps:{label:'Ocene zadovoljstva (NPS)',
+    cols:['skoda','stranka','ocena','ocenjevani','datum','kanal'],
+    fields:[
+      F('skoda','Št. škode',{dl:'skode',sec:'Ocena'}),
+      F('stranka','Stranka',{dl:'stranke'}),
+      F('ocena','Ocena (0–10)',{type:'number',min:0,max:10,step:'1',req:1}),
+      F('ocenjevani','Ocenjeni (cenilec/zastopnik)',{dl:'zaposleni'}),
+      F('datum','Datum',{type:'date',def:'today'}),
+      F('kanal','Kanal',{type:'select',opts:['Portal','Telefon','E-pošta','Osebno']}),
+      F('komentar','Komentar',{type:'textarea',full:1}),
+    ]},
+};
+
+const modules = [
+  {id:'dash', label:'Nadzorna plošča', icon:'◧', type:'custom', roles:'all'},
+  {id:'police', label:'Zavarovalne police', icon:'▤', type:'crud', roles:['admin','vodja','zastopnik']},
+  {id:'skode', label:'Škodni zahtevki', icon:'⚑', type:'crud', roles:['admin','vodja','zastopnik','cenilec']},
+  {id:'izplacila', label:'Izplačila škod (4 oči)', icon:'✔', type:'custom', roles:['admin','vodja','racunovodja']},
+  {id:'rezerve', label:'Škodne rezerve in regresi', icon:'Σ', type:'crud', roles:['admin','vodja','racunovodja','cenilec']},
+  {id:'stranke', label:'Stranke (CRM)', icon:'◍', type:'crud', roles:['admin','vodja','zastopnik']},
+  {id:'leads', label:'Prodajni lijak', icon:'➤', type:'crud', roles:['admin','vodja','zastopnik']},
+  {id:'mreza', label:'Zastopniki in mreža', icon:'⌘', type:'crud', schema:'zastopniki', roles:['admin','vodja']},
+  {id:'provizije', label:'Obračun provizij', icon:'฿', type:'custom', roles:['admin','vodja','racunovodja']},
+  {id:'kalkulator', label:'Kalkulator premij', icon:'▦', type:'custom', roles:['admin','vodja','zastopnik']},
+  {id:'tarife', label:'Tarifne tabele', icon:'%', type:'crud', roles:['admin','vodja']},
+  {id:'ponudbe', label:'Ponudbe', icon:'✉', type:'crud', roles:['admin','vodja','zastopnik']},
+  {id:'bonusmalus', label:'Bonus-malus', icon:'±', type:'custom', roles:['admin','vodja','zastopnik']},
+  {id:'produkti', label:'Produkti', icon:'▣', type:'crud', roles:'all'},
+  {id:'premije', label:'Premije in plačila', icon:'฿', type:'crud', roles:['admin','vodja','racunovodja']},
+  {id:'pritozbe', label:'Pritožbe strank', icon:'!', type:'crud', roles:['admin','vodja','zastopnik']},
+  {id:'naloge', label:'Naloge in obnove', icon:'☑', type:'crud', roles:'all'},
+  {id:'termini', label:'Koledar in terenski obiski', icon:'▥', type:'crud', roles:['admin','vodja','zastopnik','cenilec']},
+  {id:'nps', label:'Zadovoljstvo (NPS)', icon:'☆', type:'crud', roles:['admin','vodja','zastopnik','cenilec']},
+  {id:'racuni', label:'Računi', icon:'฿', type:'crud', roles:['admin','vodja','racunovodja']},
+  {id:'banka', label:'Bančna uskladitev', icon:'⇄', type:'custom', roles:['admin','vodja','racunovodja']},
+  {id:'zaposleni', label:'Zaposleni (kadri)', icon:'☺', type:'crud', roles:['admin','vodja']},
+  {id:'stroski', label:'Stroški poslovanja', icon:'−', type:'crud', roles:['admin','vodja','racunovodja']},
+  {id:'kpiTrend', label:'KPI po mesecih', icon:'▦', type:'crud', roles:['admin','vodja','racunovodja']},
+  {id:'vodstvo', label:'Vodstvena plošča', icon:'★', type:'custom', roles:['admin','vodja']},
+  {id:'zemljevid', label:'Zemljevid izpostavljenosti', icon:'⛶', type:'custom', roles:['admin','vodja','zastopnik']},
+  {id:'tveganja', label:'Analitika tveganj', icon:'△', type:'custom', roles:['admin','vodja']},
+  {id:'antifraud', label:'Zaznava goljufij', icon:'⊘', type:'custom', roles:['admin','vodja','cenilec']},
+  {id:'pozavarovanje', label:'Pozavarovanje', icon:'⇄', type:'custom', roles:['admin','vodja']},
+  {id:'dokumenti', label:'Dokumenti in arhiv', icon:'▢', type:'custom', roles:'all'},
+  {id:'skladnost', label:'Skladnost (Solvency II)', icon:'✓', type:'custom', roles:['admin','vodja']},
+  {id:'gdpr', label:'GDPR soglasja', icon:'§', type:'crud', roles:['admin','vodja']},
+  {id:'obvestila', label:'Opozorila', icon:'✦', type:'custom', roles:'all'},
+  {id:'audit', label:'Revizijska sled', icon:'≡', type:'custom', roles:['admin','vodja']},
+  {id:'uvoz', label:'Množični uvoz CSV', icon:'⇪', type:'custom', roles:['admin','vodja']},
+  {id:'asistent', label:'Asistent', icon:'✧', type:'custom', roles:'all'},
+  {id:'uporabniki', label:'Uporabniki', icon:'⚿', type:'crud', roles:['admin']},
+  {id:'strankeRacuni', label:'Dostopi za stranke', icon:'⚷', type:'crud', roles:['admin','vodja']},
+  {id:'portal', label:'Moj portal', icon:'◎', type:'custom', roles:['stranka']},
+];
+
+const GROUPS=[['pregled','Pregled'],['prodaja','Prodaja in stranke'],['police','Police in škode'],['finance','Finance'],['org','Organizacija'],['analitika','Analitika'],['skladnost','Skladnost in arhiv'],['sistem','Sistem'],['portal','Moj račun']];
+const MOD_GROUP={dash:'pregled',obvestila:'pregled',asistent:'pregled',stranke:'prodaja',leads:'prodaja',kalkulator:'prodaja',ponudbe:'prodaja',mreza:'prodaja',provizije:'prodaja',
+  police:'police',bonusmalus:'police',skode:'police',izplacila:'police',rezerve:'police',pritozbe:'police',termini:'police',
+  premije:'finance',racuni:'finance',banka:'finance',stroski:'finance',zaposleni:'org',naloge:'org',
+  vodstvo:'analitika',kpiTrend:'analitika',tveganja:'analitika',zemljevid:'analitika',antifraud:'analitika',nps:'analitika',pozavarovanje:'analitika',
+  skladnost:'skladnost',gdpr:'skladnost',dokumenti:'skladnost',audit:'skladnost',produkti:'sistem',tarife:'sistem',uvoz:'sistem',uporabniki:'sistem',strankeRacuni:'sistem',portal:'portal'};
+modules.forEach(m=>{ m.g=MOD_GROUP[m.id]||'sistem'; });
+
+/* ================= PODATKI ================= */
+function uid(){ return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function withIds(arr){ return arr.map(r=>({_id:uid(), ...r})); }
+
+function defaultData(){ return {
+  police: withIds([
+    {id:'POL-88213', stranka:'Novak Marko', produkt:'Avtomobilsko kasko', regija:'Ljubljana', zastopnik:'Ana Bevc', premija:'642 €', status:'aktivna', potek:'14.03.2027', podpis:'Marko Novak — 12.09.2026 09:14', vrstaPolice:'Obnova', predmet:'Osebno vozilo LJ 12-ABC', kritje:'AO + polna kasko + asistenca', fransiza:'250,00 €', nacinPlacila:'Trajnik', obroki:'letno', datumZacetka:'14.03.2026', kanal:'Zastopnik'},
+    {id:'POL-88240', stranka:'Kovač Ana', produkt:'Življenjsko zavarovanje', regija:'Maribor', zastopnik:'Digitalni kanal (splet/app)', premija:'38 €/mes', status:'aktivna', potek:'—', podpis:''},
+    {id:'POL-88301', stranka:'Zupan Gradbeništvo d.o.o.', produkt:'Premoženjsko', regija:'Celje', zastopnik:'Ana Bevc', premija:'2.410 €', status:'v obnovi', potek:'30.09.2026', podpis:''},
+    {id:'POL-88390', stranka:'Kranjc Logistika d.o.o.', produkt:'Flotno avtomobilsko', regija:'Koper', zastopnik:'Ana Bevc', premija:'11.200 €', status:'tvegano', potek:'02.11.2026', podpis:''},
+  ]),
+  skode: withIds([
+    {id:'ŠK-5541', stranka:'Novak Marko', vrsta:'Trčenje', cenilec:'Jure Kos', vrednost:'1.850 €', faza:'cenitev', prioriteta:'redno', dnevi:4},
+    {id:'ŠK-5539', stranka:'Kranjc Logistika d.o.o.', vrsta:'Požar skladišča', cenilec:'Jure Kos', vrednost:'84.000 €', faza:'preiskava', prioriteta:'nujno', dnevi:19},
+  ]),
+  stranke: withIds([
+    {ime:'Novak Marko', segment:'Fizična oseba', police:2, ltv:'4.100 €', tveganje:'nizko', status:'aktivna', email:'marko.novak@example.si', telefon:'+386 41 123 456', naslov:'Dunajska cesta 10', postnaSt:'1000', kraj:'Ljubljana', regija:'Ljubljana', drzava:'Slovenija', prefKanal:'E-pošta', jezik:'slovenščina', trzenje:'Da', vir:'Priporočilo'},
+    {ime:'Kranjc Logistika d.o.o.', segment:'Poslovna stranka', police:5, ltv:'62.300 €', tveganje:'visoko'},
+  ]),
+  zastopniki: withIds([
+    {ime:'Enota Ljubljana Center', tip:'Lastna poslovalnica', sklenitve:142, uspesnost:'87%', provizija:'12'},
+    {ime:'Digitalni kanal (splet/app)', tip:'Neposredna prodaja', sklenitve:398, uspesnost:'—', provizija:'4'},
+    {ime:'Ana Bevc', tip:'Zunanja zastopnica', sklenitve:38, uspesnost:'81%', provizija:'15'},
+  ]),
+  produkti: withIds([
+    {ime:'Avtomobilsko zavarovanje (AO + kasko)', opis:'Osnovno in kasko kritje, asistenca, popust za varno vožnjo iz telematike.'},
+    {ime:'Kibernetsko zavarovanje', opis:'Kritje za podjetja ob vdorih, izsiljevalski programski opremi, izgubi podatkov.'},
+  ]),
+  premije: withIds([
+    {polica:'POL-88213', znesek:'642 €', datum:'01.09.2026', nacin:'Trajnik', status:'plačano'},
+    {polica:'POL-88390', znesek:'2.800 €', datum:'15.09.2026', nacin:'SEPA', status:'v zamudi'},
+  ]),
+  pritozbe: withIds([
+    {stranka:'Kranjc Logistika d.o.o.', razlog:'Nestrinjanje z višino cenitve škode ŠK-5539', datum:'22.09.2026', status:'v obravnavi'},
+  ]),
+  naloge: withIds([
+    {naslov:'Poklicati stranko pred potekom police POL-88301', zadolzen:'A. Bevc', rok:'28.09.2026', status:'odprto'},
+  ]),
+  racuni: withIds([
+    {id:'RA-2026-0412', prejemnik:'Kranjc Logistika d.o.o.', znesek:'2.800 €', ddv:'22%', datumIzdaje:'15.09.2026', rokPlacila:'15.10.2026', status:'v zamudi'},
+    {id:'RA-2026-0413', prejemnik:'Novak Marko', znesek:'642 €', ddv:'22%', datumIzdaje:'01.09.2026', rokPlacila:'01.10.2026', status:'plačano'},
+  ]),
+  zaposleni: withIds([
+    {ime:'Ana Bevc', oddelek:'Prodaja', vloga:'Zavarovalna zastopnica', datumZaposlitve:'03.04.2019', status:'aktiven'},
+    {ime:'Jure Kos', oddelek:'Škodni sektor', vloga:'Cenilec škod', datumZaposlitve:'11.01.2022', status:'aktiven'},
+  ]),
+  stroski: withIds([
+    {kategorija:'Pozavarovanje', opis:'Kvotna premija za Q3', znesek:'184.000 €', datum:'10.09.2026', status:'plačano'},
+    {kategorija:'IT in razvoj', opis:'Licence in vzdrževanje informacijskega sistema', znesek:'9.400 €', datum:'05.09.2026', status:'odprto'},
+  ]),
+  kpiTrend: withIds([
+    {mesec:'Apr', prihodki:4.1, skodninost:61, kombinirani:97},
+    {mesec:'Maj', prihodki:4.6, skodninost:59, kombinirani:96},
+    {mesec:'Jun', prihodki:4.3, skodninost:63, kombinirani:98},
+    {mesec:'Jul', prihodki:5.0, skodninost:57, kombinirani:95},
+    {mesec:'Avg', prihodki:5.4, skodninost:55, kombinirani:94},
+    {mesec:'Sep', prihodki:5.9, skodninost:52, kombinirani:92},
+  ]),
+  uporabniki: withIds([
+    {ime:'Admin Uporabnik', uporabnisko:'admin', geslo:'admin123', vloga:'admin', status:'aktiven'},
+    {ime:'Ana Bevc', uporabnisko:'ana', geslo:'zastopnik123', vloga:'zastopnik', status:'aktiven'},
+    {ime:'Jure Kos', uporabnisko:'jure', geslo:'cenilec123', vloga:'cenilec', status:'aktiven'},
+    {ime:'Meta Rojc', uporabnisko:'meta', geslo:'racun123', vloga:'racunovodja', status:'aktiven'},
+  ]),
+  leads: withIds([
+    {ime:'Potencialna stranka: Kmetija Zupančič', faza:'ponudba poslana', vir:'Priporočilo', vrednost:'1.200 €', zadolzen:'Ana Bevc'},
+    {ime:'Potencialna stranka: Špedicija Vrhovnik', faza:'nov stik', vir:'Spletni obrazec', vrednost:'8.500 €', zadolzen:'Digitalni kanal'},
+  ]),
+  gdpr: withIds([
+    {stranka:'Novak Marko', vrstaSoglasja:'Obdelava osebnih podatkov za sklenitev police', datumSoglasja:'12.09.2026', rokHrambe:'12.09.2036', status:'aktivno'},
+    {stranka:'Kranjc Logistika d.o.o.', vrstaSoglasja:'Trženjska komunikacija', datumSoglasja:'01.03.2020', rokHrambe:'01.03.2025', status:'poteklo'},
+  ]),
+  strankeRacuni: withIds([
+    {ime:'Marko Novak', uporabnisko:'marko.novak', geslo:'stranka123', poveznaStranka:'Novak Marko', status:'aktiven'},
+  ]),
+  tarife: withIds([
+    ['osnova','Avtomobilsko zavarovanje','400'],
+    ['starost','18–25 let','1.6'],['starost','26–40 let','1.0'],['starost','41–65 let','0.9'],['starost','66+ let','1.2'],
+    ['regija','Ljubljana','1.15'],['regija','Maribor','1.0'],['regija','Celje','0.95'],['regija','Koper','1.05'],
+    ['vozilo','Osebno vozilo','1.0'],['vozilo','SUV','1.2'],['vozilo','Kombi','1.3'],['vozilo','Motor','1.4'],
+    ['kritje','Samo AO','0.6'],['kritje','AO + delna kasko','1.0'],['kritje','AO + polna kasko','1.5'],
+    ['fransiza','0 €','1.25'],['fransiza','250 €','1.0'],['fransiza','500 €','0.9'],['fransiza','1000 €','0.8'],
+  ].map(([kategorija,vrednost,faktor])=>({kategorija,vrednost,faktor}))),
+  ponudbe: withIds([
+    {id:'PON-2026-1001', stranka:'Potencialna stranka: Kmetija Zupančič', produkt:'Premoženjsko zavarovanje kmetije', premija:'1.200,00 €', veljavnost:fmtDateSl(new Date(Date.now()+30*86400000)), status:'poslana'},
+  ]),
+  rezerve: withIds([
+    {skoda:'ŠK-5539', povzrocitelj:'Tretja oseba (zavarovalnica povzročitelja)', rezerva:'84.000', izplacano:'20.000', regresZahtevek:'30.000', regresPrejet:'0', status:'odprto'},
+  ]),
+  termini: withIds([
+    {datum:fmtDateSl(new Date(Date.now()+86400000)), ura:'09:00', vrsta:'Ogled škode', povezava:'ŠK-5541', oseba:'Jure Kos', lokacija:'Ljubljana', status:'načrtovano'},
+    {datum:fmtDateSl(new Date(Date.now()+3*86400000)), ura:'14:30', vrsta:'Obisk stranke', povezava:'POL-88301', oseba:'Ana Bevc', lokacija:'Celje', status:'načrtovano'},
+  ]),
+  nps: withIds([
+    {skoda:'ŠK-5500', stranka:'Kovač Ana', ocena:9, komentar:'Hitro in prijazno.', ocenjevani:'Jure Kos', datum:'15.08.2026'},
+  ]),
+  auditLog: [],
+};}
+
+let state = null;
+try{ state = JSON.parse(localStorage.getItem('zavis_data')); }catch(e){}
+if(!state) state = defaultData();
+function ensureState(){
+  const d = defaultData();
+  Object.keys(d).forEach(k=>{ if(!state[k]) state[k] = (k==='auditLog') ? [] : []; });
+  ['leads','gdpr','strankeRacuni','tarife','ponudbe','rezerve','termini','nps'].forEach(k=>{ if(!state[k].length && !localStorage.getItem('zavis_seeded_'+k)){ state[k]=d[k]; localStorage.setItem('zavis_seeded_'+k,'1'); } });
+}
+ensureState();
+function persist(){ localStorage.setItem('zavis_data', JSON.stringify(state)); }
+function logAction(action, detail){
+  state.auditLog.unshift({ts:new Date().toLocaleString('sl-SI'), user: session?session.ime:'—', action, detail:detail||''});
+  if(state.auditLog.length>300) state.auditLog.length=300;
+}
+
+/* ================= POMOŽNE FUNKCIJE ================= */
+const $=s=>document.querySelector(s);
+function esc(v){ return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function statusTag(v){
+  const s=String(v||'').toLowerCase();
+  if(/tvegan|preiskav|zamud|visok|risk|nujn|potekl|zavrn|odpoved|eskalir|izgubljeno|preklic/.test(s)) return 'risk';
+  if(/obnov|cenit|obravnav|srednj|odprto|wait|nov stik|ponudba|osnutek|poslana|načrt|deloma|preloz|v teku|odobritvi|potencial|prejeto|prijavljeno|uvajanju|zastoju|pogajanj|pogovoru|odsoten|poskusni|neaktiv|izstopil/.test(s)) return 'wait';
+  return 'ok';
+}
+function tagHtml(v){ return `<span class="tag ${statusTag(v)}">${esc(v)}</span>`; }
+function parseDateSl(str){
+  const m=/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(String(str||'').trim());
+  if(!m) return null;
+  return new Date(+m[3], +m[2]-1, +m[1]);
+}
+function fmtDateSl(d){ return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear(); }
+
+/* ================= PRIJAVA ================= */
+function moduleAllowed(m){
+  if(session && session.vloga==='stranka') return m.id==='portal';
+  return m.roles==='all' || (session && m.roles.includes(session.vloga));
+}
+function showLogin(){ document.body.classList.add('locked'); $('#loginWrap').classList.add('show'); }
+function tryLogin(){
+  const u=$('#li_user').value.trim(), p=$('#li_pass').value;
+  const staff = state.uporabniki.find(r=>r.uporabnisko===u && r.geslo===p && /^aktiv/i.test(r.status));
+  const cust = !staff && state.strankeRacuni.find(r=>r.uporabnisko===u && r.geslo===p && /^aktiv/i.test(r.status));
+  const rec = staff || cust;
+  if(!rec){ $('#li_err').textContent='Napačno uporabniško ime ali geslo, ali uporabnik ni aktiven.'; return; }
+  session = staff ? {ime:rec.ime, uporabnisko:rec.uporabnisko, vloga:rec.vloga} : {ime:rec.ime, uporabnisko:rec.uporabnisko, vloga:'stranka', poveznaStranka:rec.poveznaStranka};
+  sessionStorage.setItem('zavis_session', JSON.stringify(session));
+  logAction('prijava', session.ime+' ('+session.vloga+')'); persist();
+  $('#loginWrap').classList.remove('show');
+  boot();
+}
+function logout(){ sessionStorage.removeItem('zavis_session'); location.reload(); }
+
+/* ================= NAVIGACIJA ================= */
+let current='dash';
+function renderNav(){
+  const visible = modules.filter(moduleAllowed);
+  if(!visible.find(m=>m.id===current) && visible.length) current=visible[0].id;
+  let collapsed={}; try{ collapsed=JSON.parse(localStorage.getItem('zavis_navc')||'{}'); }catch(e){}
+  let alertsN=0; try{ alertsN=computeAlerts().length; }catch(e){}
+  $('#navwrap').innerHTML = GROUPS.map(([gid,gl])=>{
+    const items=visible.filter(m=>m.g===gid); if(!items.length) return '';
+    const hasActive=items.some(m=>m.id===current); const closed=collapsed[gid] && !hasActive;
+    return `<div class="navgrp ${closed?'closed':''}"><button class="grp-h" data-grp="${gid}"><span>${gl}</span><i class="chev">▾</i></button>
+      <div class="grp-items">${items.map(m=>`<button class="nav-btn ${m.id===current?'active':''}" data-m="${m.id}"><span class="ico" aria-hidden="true">${m.icon}</span><span class="lbltext">${m.label}</span>${m.id==='obvestila'&&alertsN?`<span class="badge">${alertsN}</span>`:''}</button>`).join('')}</div></div>`;
+  }).join('');
+  if(session){
+    const ini=session.ime.split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase();
+    $('#sidefoot').innerHTML=`<div class="avatar">${esc(ini)}</div><div class="who"><b>${esc(session.ime)}</b><span>${esc(session.vloga)}</span></div><button onclick="logout()">Odjava</button>`;
+  } else $('#sidefoot').innerHTML='';
+  const ab=$('#adminBtn'); if(ab) ab.style.display = (session && ['admin','vodja'].includes(session.vloga)) ? '' : 'none';
+}
+function goModule(id){
+  current=id; document.body.classList.remove('drawer'); renderNav(); renderMain(); window.scrollTo(0,0);
+}
+function toggleGroup(gid){
+  let c={}; try{ c=JSON.parse(localStorage.getItem('zavis_navc')||'{}'); }catch(e){}
+  c[gid]=!c[gid]; localStorage.setItem('zavis_navc',JSON.stringify(c)); renderNav();
+}
+/* Tema */
+function applyTheme(t){ document.documentElement.setAttribute('data-theme',t); const b=$('#themeBtn'); if(b) b.textContent = t==='dark' ? '☀' : '☾'; }
+function toggleTheme(){ const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'; localStorage.setItem('zavis_theme',t); applyTheme(t); }
+function toast(msg,type){
+  const c=$('#toasts'); if(!c) return; const t=document.createElement('div'); t.className='toast '+(type||''); t.textContent=msg; c.appendChild(t);
+  setTimeout(()=>t.classList.add('out'),2600); setTimeout(()=>t.remove(),3100);
+}
+
+/* ================= CRUD: TABELA, ISKANJE, RAZVRŠČANJE, OBRAZEC ================= */
+const searchState = {}, filterState = {}, sortState = {};
+function dlSource(n){
+  const names=a=>a.map(x=>x.ime).filter(Boolean);
+  switch(n){
+    case 'stranke': return names(state.stranke);
+    case 'zaposleni': return names(state.zaposleni);
+    case 'zastopniki': return [...names(state.zastopniki),...names(state.zaposleni)];
+    case 'police': return state.police.map(x=>x.id);
+    case 'skode': return state.skode.map(x=>x.id);
+    case 'racuni': return state.racuni.map(x=>x.id);
+    case 'produkti': return [...names(state.produkti),...OPT.produkt];
+    case 'kontakti': return [...names(state.stranke),...names(state.leads)];
+    case 'povezave': return [...state.skode.map(x=>x.id),...state.police.map(x=>x.id)];
+  } return [];
+}
+function slToIso(v){ const d=parseDateSl(v); return d? d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0') : ''; }
+function isoToSl(v){ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v); return m? m[3]+'.'+m[2]+'.'+m[1] : v; }
+function normMoney(v){ v=String(v).trim(); return /^[\d\s.,]+\s*(€|eur)?$/i.test(v) ? fmtEur(amountNum(v)) : v; }
+function nextId(schemaKey,key,prefix){
+  let max=0,len=4;
+  state[schemaKey].forEach(r=>{ const v=String(r[key]||''); if(v.startsWith(prefix)){ const m=/(\d+)$/.exec(v.slice(prefix.length)); if(m){ max=Math.max(max,+m[1]); len=Math.max(len,m[1].length); } } });
+  return prefix+String(max+1).padStart(len,'0');
+}
+function schemaOf(modKey){ const m=modules.find(x=>x.id===modKey); return (m&&m.schema)||modKey; }
+
+function extraActionsHtml(schemaKey, r){
+  let out='';
+  if(schemaKey==='premije' && r.status!=='plačano') out+=`<button class="rowbtn" data-invoice="${r._id}">Ustvari račun</button><button class="rowbtn" data-pay="${r._id}">Plačaj (simulacija)</button>`;
+  if(schemaKey==='stranke' && /poslovna|podjetnik|kmetij|javni/i.test(r.segment)) out+=`<button class="rowbtn" data-ajpes="${r._id}">AJPES</button>`;
+  if(schemaKey==='police' && !r.podpis) out+=`<button class="rowbtn" data-sign="${r._id}">Podpiši</button>`;
+  if(schemaKey==='ponudbe'){
+    out+=`<button class="rowbtn" data-offerpdf="${r._id}">PDF</button>`;
+    if(!/sprejeta|zavrn/i.test(r.status)) out+=`<button class="rowbtn" data-offer2pol="${r._id}">V polico</button>`;
+  }
+  if(schemas[schemaKey].attach && r.priloge && r.priloge.length) out+=`<span class="note" title="Priponke" style="margin-right:6px">📎${r.priloge.length}</span>`;
+  return out;
+}
+function cellHtml(sch,f,r,first){
+  const v=r[f.k];
+  if(f.k==='podpis') return v? `<span class="tag ok" title="${esc(v)}">podpisano</span>` : '<span class="note">—</span>';
+  if(f.tag) return v? tagHtml(v) : '<span class="note">—</span>';
+  if(v===undefined||v===null||v==='') return '<span class="note">—</span>';
+  if(first) return `<button class="lnk" data-view="${r._id}" data-schema="${sch.key}">${esc(v)}</button>`;
+  if(f.type==='email') return `<a class="rowbtn" style="padding:0" href="mailto:${esc(v)}">${esc(v)}</a>`;
+  if(f.type==='textarea') return esc(String(v).slice(0,70)+(String(v).length>70?'…':''));
+  if(f.k==='provizija'||f.k==='popust'||f.k==='verjetnost'||f.k==='skodninost'||f.k==='kombinirani') return esc(v)+' %';
+  return esc(v);
+}
+function cmpVal(f,a,b){
+  const va=a[f.k]==null?'':a[f.k], vb=b[f.k]==null?'':b[f.k];
+  if(f.type==='money'||f.type==='number') return amountNum(va)-amountNum(vb);
+  if(f.type==='date'){ const da=parseDateSl(va), db=parseDateSl(vb); return (da?+da:0)-(db?+db:0); }
+  return String(va).localeCompare(String(vb),'sl',{numeric:true});
+}
+function filteredRows(schemaKey){
+  const sch=schemas[schemaKey]; const term=(searchState[schemaKey]||'').toLowerCase().trim();
+  const tf=sch.fields.find(f=>f.tag); const fv=filterState[schemaKey]||'';
+  let rows=state[schemaKey].filter(r=>{
+    if(fv && tf && String(r[tf.k]||'')!==fv) return false;
+    return !term || sch.fields.some(f=>String(r[f.k]==null?'':r[f.k]).toLowerCase().includes(term));
+  });
+  const s=sortState[schemaKey];
+  if(s){ const f=sch.fields.find(x=>x.k===s.k); if(f) rows=rows.slice().sort((a,b)=>cmpVal(f,a,b)*(s.dir==='desc'?-1:1)); }
+  return rows;
+}
+function crudInner(schemaKey){
+  const sch=schemas[schemaKey]; sch.key=schemaKey;
+  const cols=(sch.cols||sch.fields.map(f=>f.k)).map(k=>sch.fields.find(f=>f.k===k)).filter(Boolean);
+  const rows=filteredRows(schemaKey); const total=state[schemaKey].length; const s=sortState[schemaKey];
+  if(!total) return `<div class="empty"><b>Še ni zapisov</b>Dodaj prvi zapis z gumbom "Nov zapis" zgoraj.</div>`;
+  return `<table><thead><tr>${cols.map(f=>`<th class="sortable" data-sort="${f.k}" data-schema="${schemaKey}">${esc(f.l.replace(/\s*\(.*\)$/,''))}${s&&s.k===f.k?`<span class="arr">${s.dir==='desc'?'▼':'▲'}</span>`:''}</th>`).join('')}<th class="actcol"></th></tr></thead>
+  <tbody>${rows.length? rows.map(r=>`<tr>${cols.map((f,i)=>`<td class="${f.type==='textarea'||f.k==='opis'?'trunc':''}">${cellHtml(sch,f,r,i===0)}</td>`).join('')}
+    <td class="acts">${extraActionsHtml(schemaKey,r)}<button class="rowbtn" data-edit="${r._id}" data-schema="${schemaKey}">Uredi</button><button class="rowbtn danger" data-del="${r._id}" data-schema="${schemaKey}">Izbriši</button></td></tr>`).join('')
+    : `<tr><td colspan="${cols.length+1}"><div class="empty"><b>Ni zadetkov</b>Poskusi z drugim iskalnim nizom ali filtrom.</div></td></tr>`}</tbody></table>
+  <div class="tfoot">${rows.length} od ${total} zapisov</div>`;
+}
+function refreshCrud(schemaKey){ const el=document.getElementById('crud-'+schemaKey); if(el) el.innerHTML=crudInner(schemaKey); }
+function onSearch(schemaKey,val){ searchState[schemaKey]=val; refreshCrud(schemaKey); }
+function onFilter(schemaKey,val){ filterState[schemaKey]=val; refreshCrud(schemaKey); }
+function sortBy(schemaKey,k){
+  const s=sortState[schemaKey];
+  if(!s||s.k!==k) sortState[schemaKey]={k,dir:'asc'}; else if(s.dir==='asc') sortState[schemaKey]={k,dir:'desc'}; else delete sortState[schemaKey];
+  refreshCrud(schemaKey);
+}
+function exportCsv(schemaKey){
+  const sch=schemas[schemaKey];
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const csv='\uFEFF'+[sch.fields.map(f=>q(f.l)).join(';'),...state[schemaKey].map(r=>sch.fields.map(f=>q(r[f.k])).join(';'))].join('\r\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download=schemaKey+'.csv'; a.click();
+  toast('Izvoženo: '+schemaKey+'.csv');
+}
+function renderCrudTable(modKey){
+  const schemaKey=schemaOf(modKey); const sch=schemas[schemaKey]; sch.key=schemaKey;
+  const tf=sch.fields.find(f=>f.tag);
+  const vals = tf ? (tf.opts || [...new Set(state[schemaKey].map(r=>r[tf.k]).filter(Boolean))]) : [];
+  return `<div class="toolbar">
+    <button class="btn primary" onclick="openForm('${schemaKey}')">＋ Nov zapis</button>
+    <input type="text" placeholder="Išči po vseh poljih…" value="${esc(searchState[schemaKey]||'')}" oninput="onSearch('${schemaKey}',this.value)" aria-label="Iskanje">
+    ${tf? `<select onchange="onFilter('${schemaKey}',this.value)" aria-label="Filter"><option value="">Vsi: ${esc(tf.l.toLowerCase())}</option>${vals.map(v=>`<option ${filterState[schemaKey]===v?'selected':''}>${esc(v)}</option>`).join('')}</select>`:''}
+    <span class="sp"></span>
+    <button class="btn" onclick="exportCsv('${schemaKey}')">Izvozi Excel (CSV)</button>
+    <button class="btn" onclick="window.print()">PDF / natisni</button>
+  </div>
+  <div class="panel tpanel" id="crud-${schemaKey}">${crudInner(schemaKey)}</div>`;
+}
+
+/* --- Obrazec --- */
+let formAttachments=[];
+function renderAttachList(){
+  if(!formAttachments.length) return '<p class="note">Ni priponk.</p>';
+  return '<div class="thumbs">'+formAttachments.map((a,i)=>`<a href="${a.dataUrl}" download="${esc(a.name)}" title="Prenesi">${/^data:image/.test(a.dataUrl)?`<img src="${a.dataUrl}" alt="">`:''}<span>${esc(a.name)} <button type="button" class="rowbtn danger" data-rmattach="${i}">✕</button></span></a>`).join('')+'</div>';
+}
+function addAttachments(ev){
+  const files=[...ev.target.files]; let pending=files.length;
+  files.forEach(f=>{
+    if(f.size>1500000){ toast(f.name+' je prevelika (največ 1,5 MB)','err'); if(--pending===0) $('#attachList').innerHTML=renderAttachList(); return; }
+    const r=new FileReader();
+    r.onload=()=>{ formAttachments.push({name:f.name, dataUrl:r.result}); if(--pending===0) $('#attachList').innerHTML=renderAttachList(); };
+    r.readAsDataURL(f);
+  });
+}
+function removeAttachment(i){ formAttachments.splice(i,1); $('#attachList').innerHTML=renderAttachList(); }
+function fieldHtml(f,val){
+  const id='f_'+f.k; let inp;
+  const ph=f.ph?` placeholder="${esc(f.ph)}"`:'';
+  if(f.type==='textarea') inp=`<textarea id="${id}" data-k="${f.k}" rows="3"${ph}>${esc(val)}</textarea>`;
+  else if(f.type==='select'){
+    const opts=(f.opts||[]).slice(); if(val && !opts.includes(val)) opts.push(val);
+    inp=`<select id="${id}" data-k="${f.k}"><option value="">— izberi —</option>${opts.map(o=>`<option ${o===val?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+  }
+  else if(f.type==='date') inp=`<input id="${id}" data-k="${f.k}" type="date" value="${esc(slToIso(val))}">`;
+  else if(f.type==='time') inp=`<input id="${id}" data-k="${f.k}" type="time" value="${esc(val)}">`;
+  else if(f.type==='number') inp=`<input id="${id}" data-k="${f.k}" type="number" step="${f.step||'any'}" ${f.min!==undefined?`min="${f.min}"`:''} ${f.max!==undefined?`max="${f.max}"`:''} value="${esc(val)}"${ph}>`;
+  else if(f.type==='money') inp=`<input id="${id}" data-k="${f.k}" type="text" inputmode="decimal" value="${esc(val)}" placeholder="${esc(f.ph||'0,00 €')}">`;
+  else inp=`<input id="${id}" data-k="${f.k}" type="${f.type||'text'}" value="${esc(val)}"${ph}${f.dl?` list="dl_${f.dl}"`:''}${f.type==='password'?' autocomplete="new-password"':''}>`;
+  return `<div class="field ${f.full||f.type==='textarea'?'full':''}" data-w="${f.k}"><label for="${id}">${esc(f.l)}${f.req?'<i>*</i>':''}</label>${inp}${f.help?`<div class="help">${esc(f.help)}</div>`:''}<div class="ferr"></div></div>`;
+}
+function openForm(schemaKey, id){
+  const sch=schemas[schemaKey];
+  const rec = id ? state[schemaKey].find(r=>r._id===id) : {};
+  if(!rec) return;
+  const val={};
+  sch.fields.forEach(f=>{
+    let v=rec[f.k];
+    if(!id && (v===undefined||v==='')){
+      if(f.auto) v=nextId(schemaKey,f.k,typeof f.auto==='function'?f.auto():f.auto);
+      else if(f.def==='today') v=fmtDateSl(new Date());
+      else if(f.def!==undefined) v=f.def;
+    }
+    val[f.k]=v==null?'':v;
+  });
+  formAttachments=(rec.priloge||[]).slice();
+  const dls=[...new Set(sch.fields.map(f=>f.dl).filter(Boolean))].map(n=>`<datalist id="dl_${n}">${[...new Set(dlSource(n))].map(x=>`<option value="${esc(x)}">`).join('')}</datalist>`).join('');
+  let body='', open=false;
+  sch.fields.forEach((f,i)=>{ if(f.sec||i===0) body+=`<div class="fsec">${esc(f.sec||'Podatki')}</div>`; body+=fieldHtml(f,val[f.k]); });
+  $('#formBox').className='box wide';
+  $('#formBox').innerHTML=`<div class="fhead"><div><h3>${id?'Uredi zapis':'Nov zapis'}</h3><span class="note" style="margin:0">${esc(sch.label)}</span></div><button class="x" onclick="closeOverlay('formOverlay')" aria-label="Zapri">×</button></div>
+  <div class="fbody"><div class="fgrid">${body}
+  ${sch.attach? `<div class="fsec">Priponke</div><div class="field full"><label>Fotografije, skenirane pogodbe, dokazila (do 1,5 MB na datoteko)</label><input type="file" multiple accept="image/*,.pdf" onchange="addAttachments(event)"><div id="attachList">${renderAttachList()}</div></div>`:''}
+  </div>${dls}</div>
+  <div class="factions"><span class="note" style="margin:0 auto 0 0;align-self:center"><i style="color:var(--rust);font-style:normal">*</i> obvezno polje</span><button class="btn" onclick="closeOverlay('formOverlay')">Prekliči</button><button class="btn primary" onclick="saveForm('${schemaKey}','${id||''}')">Shrani</button></div>`;
+  $('#formOverlay').classList.add('show');
+  const first=document.querySelector('#formBox .fbody input:not([type=file]),#formBox .fbody select'); if(first && !id) setTimeout(()=>first.focus(),50);
+}
+function saveForm(schemaKey, id){
+  const sch=schemas[schemaKey];
+  const obj={}; let ok=true, firstBad=null;
+  document.querySelectorAll('#formBox .field').forEach(el=>el.classList.remove('err'));
+  document.querySelectorAll('#formBox .ferr').forEach(el=>el.textContent='');
+  const bad=(f,msg)=>{ ok=false; const w=document.querySelector('#formBox [data-w="'+f.k+'"]'); if(w){ w.classList.add('err'); w.querySelector('.ferr').textContent=msg; if(!firstBad) firstBad=w; } };
+  sch.fields.forEach(f=>{
+    const el=document.querySelector('#formBox [data-k="'+f.k+'"]'); let v=el?String(el.value).trim():'';
+    if(f.type==='date' && v) v=isoToSl(v);
+    if(f.type==='money' && v) v=normMoney(v);
+    if(f.req && !v) bad(f,'Obvezno polje');
+    else if(v){
+      if(f.type==='email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) bad(f,'Neveljaven e-naslov');
+      if(f.type==='number'){ const n=parseFloat(v.replace(',','.')); if(isNaN(n)) bad(f,'Vnesi število'); else if(f.min!==undefined&&n<f.min) bad(f,'Najmanj '+f.min); else if(f.max!==undefined&&n>f.max) bad(f,'Največ '+f.max); }
+      if(f.uniq && state[schemaKey].some(r=>String(r[f.k]).toLowerCase()===v.toLowerCase() && r._id!==id)) bad(f,'Ta vrednost že obstaja');
+    }
+    obj[f.k]=v;
+  });
+  if(!ok){ if(firstBad) firstBad.scrollIntoView({block:'center'}); toast('Popravi označena polja','err'); return; }
+  if(sch.attach) obj.priloge = formAttachments.slice();
+  const prej = id ? state[schemaKey].find(r=>r._id===id) : null;
+  if(schemaKey==='skode'){
+    const bilaNujna = prej ? /nujn/i.test(prej.prioriteta||'') : false;
+    if(/izpla/i.test(obj.faza) && amountNum(obj.vrednost)>PRAG_STIRI_OCI && !(prej && prej.vrednost===obj.vrednost && jeDvojnoOdobrena(prej))){
+      toast('Izplačilo nad '+PRAG_STIRI_OCI+' € zahteva odobritev dveh oseb (modul "Izplačila škod")','err'); return;
+    }
+    obj.prioriteta = amountNum(obj.vrednost)>50000 ? 'nujno' : (obj.prioriteta||'redno');
+    if(!obj.dnevi && obj.datumPrijave){ const d=parseDateSl(obj.datumPrijave); if(d) obj.dnevi=String(Math.max(0,Math.round((Date.now()-d)/86400000))); }
+    if(obj.prioriteta==='nujno' && !bilaNujna){
+      state.naloge.push({_id:uid(), naslov:'Nujna škoda '+(obj.id||'')+' presega prag 50.000 € — takoj pregledati', zadolzen:'Vodja', rok:fmtDateSl(new Date(Date.now()+86400000)), prioriteta:'nujna', status:'odprto'});
+      logAction('Samodejna eskalacija','Škoda '+(obj.id||'')+' označena kot nujna in dodeljena vodji');
+    }
+  }
+  if(schemaKey==='racuni' && !obj.znesek && obj.osnova){
+    const st=parseFloat(String(obj.ddv).replace(',','.'))||0; obj.znesek=fmtEur(amountNum(obj.osnova)*(1+st/100));
+  }
+  if(id){ Object.assign(prej, obj); logAction('Urejeno', sch.label+' — '+(obj[sch.fields[0].k]||id)); }
+  else{ obj._id=uid(); state[schemaKey].push(obj); logAction('Dodano', sch.label+' — '+(obj[sch.fields[0].k]||'')); }
+  persist(); closeOverlay('formOverlay'); renderNav(); renderMain(); toast(id?'Zapis shranjen':'Zapis dodan');
+}
+function deleteRecord(schemaKey,id){
+  const r=state[schemaKey].find(x=>x._id===id); if(!r) return;
+  if(!confirm('Izbrišem zapis "'+(r[schemas[schemaKey].fields[0].k]||'')+'"? Dejanja ni mogoče razveljaviti (razen iz varnostne kopije).')) return;
+  state[schemaKey]=state[schemaKey].filter(x=>x._id!==id);
+  logAction('Izbrisano', schemas[schemaKey].label+' — '+(r[schemas[schemaKey].fields[0].k]||id));
+  persist(); renderNav(); renderMain(); toast('Zapis izbrisan');
+}
+function closeOverlay(id){ const o=$('#'+id); if(o) o.classList.remove('show'); if(id==='formOverlay') $('#formBox').className='box'; }
+
+/* --- Podrobnosti zapisa + PDF --- */
+function recordSections(sch){
+  const secs=[]; let cur=null;
+  sch.fields.forEach(f=>{ if(f.sec||!cur){ cur={t:f.sec||'Podatki',items:[]}; secs.push(cur); } cur.items.push(f); });
+  return secs;
+}
+function detailVal(f,r){
+  const v=r[f.k]; if(v===undefined||v===null||v==='') return '<span class="note">—</span>';
+  if(f.tag) return tagHtml(v);
+  if(f.type==='email') return `<a href="mailto:${esc(v)}" style="color:var(--primary)">${esc(v)}</a>`;
+  if(f.type==='tel') return `<a href="tel:${esc(v)}" style="color:var(--primary)">${esc(v)}</a>`;
+  if(f.type==='password') return '••••••••';
+  return esc(v);
+}
+function openDetail(schemaKey,id){
+  const sch=schemas[schemaKey]; const r=state[schemaKey].find(x=>x._id===id); if(!r) return;
+  let hidden=0;
+  const secHtml=recordSections(sch).map(sc=>{ const items=sc.items.filter(f=>r[f.k]!==undefined&&r[f.k]!==null&&r[f.k]!==''); hidden+=sc.items.length-items.length; if(!items.length) return '';
+    return `<div class="dsec"><h4>${esc(sc.t)}</h4><dl class="dgrid">${items.map(f=>`<div class="${f.type==='textarea'||f.full?'full':''}"><dt>${esc(f.l)}</dt><dd>${detailVal(f,r)}</dd></div>`).join('')}</dl></div>`; }).join('');
+  const att=(r.priloge&&r.priloge.length)? `<div class="dsec"><h4>Priponke</h4><div class="thumbs">${r.priloge.map(a=>`<a href="${a.dataUrl}" download="${esc(a.name)}">${/^data:image/.test(a.dataUrl)?`<img src="${a.dataUrl}" alt="">`:''}<span>${esc(a.name)}</span></a>`).join('')}</div></div>`:'';
+  $('#formBox').className='box wide';
+  $('#formBox').innerHTML=`<div class="fhead"><div><h3>${esc(r[sch.fields[0].k]||'Zapis')}</h3><span class="note" style="margin:0">${esc(sch.label)}</span></div><button class="x" onclick="closeOverlay('formOverlay')" aria-label="Zapri">×</button></div>
+  <div class="fbody">${secHtml}${att}${hidden?`<p class="note">${hidden} praznih polj ni prikazanih — dopolniš jih z gumbom "Uredi".</p>`:''}</div>
+  <div class="factions"><button class="btn" onclick="closeOverlay('formOverlay')">Zapri</button><button class="btn" onclick="recordPdf('${schemaKey}','${id}')">PDF / natisni</button><button class="btn primary" onclick="openForm('${schemaKey}','${id}')">Uredi</button></div>`;
+  $('#formOverlay').classList.add('show');
+}
+function recordPdf(schemaKey,id){
+  const sch=schemas[schemaKey]; const r=state[schemaKey].find(x=>x._id===id); if(!r) return;
+  const w=window.open('','_blank'); if(!w){ toast('Brskalnik je blokiral novo okno — dovoli pojavna okna.','err'); return; }
+  const rows=recordSections(sch).map(s=>`<h3>${esc(s.t)}</h3><table>${s.items.filter(f=>f.type!=='password'&&r[f.k]).map(f=>`<tr><td>${esc(f.l)}</td><td>${esc(r[f.k])}</td></tr>`).join('')}</table>`).join('');
+  w.document.write(`<!DOCTYPE html><html lang="sl"><head><meta charset="utf-8"><title>${esc(sch.label)}</title><style>body{font-family:Georgia,serif;max-width:760px;margin:36px auto;color:#1A1D21;padding:0 20px}h1{color:#0F2438;border-bottom:3px solid #2F6F8F;padding-bottom:8px;font-size:24px}h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#2F6F8F;margin:22px 0 4px;font-family:Arial,sans-serif}table{width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px}td{padding:7px 8px;border-bottom:1px solid #ddd;vertical-align:top}td:first-child{width:34%;color:#667078}small{color:#667078;font-family:Arial,sans-serif}</style></head><body><h1>ŠČIT — ${esc(sch.label)}</h1><p><b>${esc(r[sch.fields[0].k]||'')}</b></p>${rows}<p><small>Natisnjeno: ${fmtDateSl(new Date())}</small></p></body></html>`);
+  w.document.close(); w.focus(); setTimeout(()=>w.print(),300);
+}
+function quickAdd(schemaKey){
+  const m=modules.find(x=>(x.schema||x.id)===schemaKey && x.type==='crud' && moduleAllowed(x)); if(!m) return;
+  goModule(m.id); openForm(schemaKey);
+}
+
+/* Delegirano ravnanje s klikom */
+document.addEventListener('click', e=>{
+  const ov=e.target; if(ov.classList && ov.classList.contains('overlay')){ closeOverlay(ov.id); return; }
+  const t=e.target.closest('[data-m],[data-grp],[data-sort],[data-view],[data-edit],[data-del],[data-invoice],[data-ajpes],[data-confirmpay],[data-sign],[data-pay],[data-rmattach],[data-restorebackup],[data-offerpdf],[data-offer2pol],[data-bmapply],[data-approve],[data-payout],[data-rate]');
+  if(!t) return; const d=t.dataset;
+  if(d.m!==undefined) goModule(d.m);
+  else if(d.grp!==undefined) toggleGroup(d.grp);
+  else if(d.sort!==undefined) sortBy(d.schema,d.sort);
+  else if(d.view!==undefined) openDetail(d.schema,d.view);
+  else if(d.edit!==undefined) openForm(d.schema,d.edit);
+  else if(d.del!==undefined) deleteRecord(d.schema,d.del);
+  else if(d.invoice!==undefined) createInvoiceFromPremium(d.invoice);
+  else if(d.ajpes!==undefined) lookupAjpes(d.ajpes);
+  else if(d.confirmpay!==undefined) confirmBankMatch(+d.confirmpay);
+  else if(d.sign!==undefined) openSignModal(d.sign);
+  else if(d.pay!==undefined) paySimulated(d.pay);
+  else if(d.rmattach!==undefined){ e.preventDefault(); removeAttachment(+d.rmattach); }
+  else if(d.restorebackup!==undefined) restoreBackup(+d.restorebackup);
+  else if(d.offerpdf!==undefined) offerPdf(d.offerpdf);
+  else if(d.offer2pol!==undefined) offerToPolicy(d.offer2pol);
+  else if(d.bmapply!==undefined) bmApply(d.bmapply);
+  else if(d.approve!==undefined) approveSkoda(d.approve);
+  else if(d.payout!==undefined) payoutSkoda(d.payout);
+  else if(d.rate!==undefined) openRateModal(d.rate);
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeOverlay('formOverlay'); closeOverlay('adminOverlay'); document.body.classList.remove('drawer'); } });
+
+/* ================= AVTOMATIZACIJA RAČUNOV ================= */
+function createInvoiceFromPremium(premijaId){
+  const p = state.premije.find(r=>r._id===premijaId);
+  if(!p) return;
+  const pol = state.police.find(x=>x.id===p.polica);
+  const izdaje = new Date();
+  const rok = new Date(izdaje.getTime()+15*86400000);
+  const novRacun = {_id:uid(), id:'RA-'+izdaje.getFullYear()+'-'+Math.floor(1000+Math.random()*9000),
+    prejemnik: pol? pol.stranka : p.polica, znesek:p.znesek, ddv:'22%',
+    datumIzdaje:fmtDateSl(izdaje), rokPlacila:fmtDateSl(rok), status:'odprto'};
+  state.racuni.push(novRacun);
+  logAction('Samodejno ustvarjen račun', novRacun.id+' iz premije '+p.polica);
+  persist();
+  current='racuni'; renderNav(); renderMain();
+}
+function lookupAjpes(strankaId){
+  const s = state.stranke.find(r=>r._id===strankaId);
+  if(!s) return;
+  window.open('https://www.google.com/search?q='+encodeURIComponent('AJPES '+s.ime),'_blank');
+}
+
+/* ================= E-PODPIS IN SIMULIRANO PLAČILO ================= */
+function openSignModal(policeId){
+  $('#formBox').innerHTML = `<h3>Enostavni e-podpis police</h3>
+    <p class="note">To je enostavna elektronska potrditev (vpis imena in strinjanje), ni kvalificiran e-podpis po eIDAS. Za pravno zavezujoč podpis poveži ponudnika kvalificiranih podpisov.</p>
+    <div class="field"><label>Ime in priimek (podpisnik)</label><input id="sign_name"></div>
+    <div class="field"><label><input type="checkbox" id="sign_agree" style="width:auto;display:inline-block;margin-right:6px">Strinjam se s pogoji police</label></div>
+    <div class="actions"><button class="btn" onclick="closeOverlay('formOverlay')">Prekliči</button>
+    <button class="btn primary" onclick="confirmSign('${policeId}')">Potrdi podpis</button></div>`;
+  $('#formOverlay').classList.add('show');
+}
+function confirmSign(policeId){
+  const name=$('#sign_name').value.trim(); const agree=$('#sign_agree').checked;
+  if(!name || !agree){ alert('Vpiši ime in potrdi strinjanje.'); return; }
+  const rec = state.police.find(r=>r._id===policeId);
+  rec.podpis = name+' — '+new Date().toLocaleString('sl-SI');
+  logAction('E-podpis','Polica '+rec.id+' podpisana ('+name+')');
+  persist(); closeOverlay('formOverlay'); renderMain();
+}
+function paySimulated(premijaId){
+  if(!confirm('To je SIMULACIJA plačila (brez prave obdelave kartice ali SEPA). Označim premijo kot plačano?')) return;
+  const p = state.premije.find(r=>r._id===premijaId); if(!p) return;
+  p.status='plačano';
+  logAction('Simulirano plačilo','Premija '+p.polica+' označena kot plačana');
+  persist(); renderMain();
+}
+
+/* ================= NOVI MODULI: TARIFA, PONUDBE, BONUS-MALUS, 4 OČI, UVOZ, NPS, ASISTENT ================= */
+const PRAG_STIRI_OCI = 5000;
+function fmtEur(n){ const [i,d]=(Math.round(n*100)/100).toFixed(2).split('.'); return i.replace(/\B(?=(\d{3})+(?!\d))/g,'.')+','+d+' €'; }
+
+/* --- 1. Kalkulator premij --- */
+const CALC_CATS=[['starost','Starost voznika'],['regija','Regija'],['vozilo','Tip vozila'],['kritje','Kritje'],['fransiza','Franšiza']];
+let calcRes=null;
+function tarifeZa(kat){ return state.tarife.filter(t=>t.kategorija===kat); }
+function calcHtml(){
+  const sel=CALC_CATS.map(([k,l])=>`<div class="field"><label>${l}</label><select id="calc_${k}" onchange="calcUpdate()">${tarifeZa(k).map(t=>`<option value="${t._id}">${esc(t.vrednost)} (×${esc(t.faktor)})</option>`).join('')}</select></div>`).join('');
+  const names=[...state.leads.map(l=>l.ime),...state.stranke.map(s=>s.ime)];
+  return `<div class="two-col"><div class="panel"><h3>Parametri</h3>${sel}
+    <div class="field"><label>Ime stranke (za ponudbo)</label><input id="calc_stranka" list="calc_list"><datalist id="calc_list">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div></div>
+    <div class="panel"><h3>Izračun premije</h3><div id="calcOut"></div>
+    <div class="actions" style="justify-content:flex-start"><button class="btn primary" onclick="calcSaveOffer()">Shrani kot ponudbo</button></div></div></div>
+    <p class="note">Vrednosti in faktorje urejaš v modulu "Tarifne tabele". Kategorije: starost, regija, vozilo, kritje, fransiza. Zapis s kategorijo "osnova" določa osnovno premijo v €.</p>`;
+}
+function calcUpdate(){
+  const out=$('#calcOut'); if(!out) return;
+  const osn=state.tarife.find(t=>t.kategorija==='osnova');
+  if(!osn){ out.innerHTML='<p class="note">V tarifnih tabelah manjka zapis s kategorijo "osnova".</p>'; calcRes=null; return; }
+  let p=amountNum(osn.faktor); const lines=[`<tr><td>Osnovna premija</td><td></td><td>${fmtEur(p)}</td></tr>`]; const sel={};
+  for(const [k,l] of CALC_CATS){
+    const el=$('#calc_'+k); const t=state.tarife.find(x=>el && x._id===el.value); if(!t) continue;
+    const f=parseFloat(String(t.faktor).replace(',','.'))||1; p*=f; sel[k]=t.vrednost;
+    lines.push(`<tr><td>${l}: ${esc(t.vrednost)}</td><td>×${f}</td><td>${fmtEur(p)}</td></tr>`);
+  }
+  calcRes={premija:Math.round(p*100)/100, sel};
+  out.innerHTML=`<table><tbody>${lines.join('')}</tbody></table><h2 style="margin-top:12px">${fmtEur(calcRes.premija)} / leto</h2>`;
+}
+function calcSaveOffer(){
+  if(!calcRes){ alert('Najprej izberi parametre.'); return; }
+  const ime=($('#calc_stranka').value||'').trim(); if(!ime){ alert('Vpiši ime stranke.'); return; }
+  state.ponudbe.push({_id:uid(), id:'PON-'+new Date().getFullYear()+'-'+Math.floor(1000+Math.random()*9000), stranka:ime,
+    produkt:'Avtomobilsko zavarovanje — '+(calcRes.sel.kritje||'')+', franšiza '+(calcRes.sel.fransiza||''),
+    premija:fmtEur(calcRes.premija), veljavnost:fmtDateSl(new Date(Date.now()+30*86400000)), status:'osnutek'});
+  logAction('Ponudba','Ustvarjena iz kalkulatorja za '+ime); persist(); current='ponudbe'; renderNav(); renderMain();
+}
+
+/* --- 3. Ponudbe: PDF in pretvorba v polico --- */
+function offerPdf(id){
+  const o=state.ponudbe.find(r=>r._id===id); if(!o) return;
+  const w=window.open('','_blank'); if(!w){ alert('Brskalnik je blokiral novo okno — dovoli pojavna okna za to stran.'); return; }
+  w.document.write(`<!DOCTYPE html><html lang="sl"><head><meta charset="utf-8"><title>Ponudba ${esc(o.id)}</title><style>body{font-family:Georgia,serif;max-width:720px;margin:40px auto;color:#1B1B18;padding:0 20px}h1{color:#10253D;border-bottom:3px solid #3C6E8F;padding-bottom:8px}table{width:100%;border-collapse:collapse;margin:20px 0}td{padding:10px;border-bottom:1px solid #ddd}td:first-child{color:#6B6558;width:35%}.big{font-size:26px;color:#10253D}small{color:#6B6558}</style></head><body><h1>ŠČIT — Ponudba za zavarovanje</h1><p>Št. ponudbe: <b>${esc(o.id)}</b></p><table><tr><td>Stranka</td><td>${esc(o.stranka)}</td></tr><tr><td>Zavarovanje</td><td>${esc(o.produkt)}</td></tr><tr><td>Letna premija</td><td class="big">${esc(o.premija)}</td></tr><tr><td>Ponudba velja do</td><td>${esc(o.veljavnost)}</td></tr></table><p><small>Ponudba postane zavezujoča s podpisom police. Izdano: ${fmtDateSl(new Date())}.</small></p></body></html>`);
+  w.document.close(); w.focus(); setTimeout(()=>w.print(),300);
+}
+function offerToPolicy(id){
+  const o=state.ponudbe.find(r=>r._id===id); if(!o) return;
+  if(!confirm('Ponudbo '+o.id+' pretvorim v polico?')) return;
+  const n=new Date(); const polId='POL-'+Math.floor(10000+Math.random()*89999);
+  state.police.push({_id:uid(), id:polId, stranka:o.stranka, produkt:o.produkt, regija:'', zastopnik:(session&&session.ime)||'', premija:o.premija, status:'aktivna', potek:fmtDateSl(new Date(n.getFullYear()+1,n.getMonth(),n.getDate())), podpis:'', priloge:[]});
+  o.status='sprejeta';
+  const lead=state.leads.find(l=>l.ime===o.stranka); if(lead) lead.faza='sklenjeno';
+  if(!state.stranke.some(s=>s.ime===o.stranka)) state.stranke.push({_id:uid(), ime:o.stranka, segment:'Fizična oseba', police:1, ltv:'', tveganje:'nizko'});
+  logAction('Ponudba → polica', o.id+' pretvorjena v '+polId); persist(); current='police'; renderNav(); renderMain();
+}
+
+/* --- 2. Bonus-malus --- */
+function bmInfo(stranka){
+  const n=state.skode.filter(s=>s.stranka===stranka).length;
+  if(n===0) return {n,pct:-10,txt:'Bonus −10 %'};
+  if(n===1) return {n,pct:0,txt:'Brez spremembe'};
+  if(n===2) return {n,pct:15,txt:'Malus +15 %'};
+  return {n,pct:30,txt:'Malus +30 %'};
+}
+function bmHtml(){
+  const l=state.police.filter(p=>/avto/i.test(p.produkt));
+  return `<div class="panel"><h3>Bonus-malus pri obnovi avtomobilskih polic</h3>
+  <p class="note">Pravilo: 0 škod = −10 % (bonus), 1 škoda = brez spremembe, 2 škodi = +15 %, 3 ali več = +30 % (malus). Šteje vse škode stranke v modulu Škodni zahtevki.</p>
+  ${l.length? `<table><thead><tr><th>Polica</th><th>Stranka</th><th>Poteče</th><th>Št. škod</th><th>Sprememba</th><th>Trenutna premija</th><th>Nova premija</th><th></th></tr></thead><tbody>
+  ${l.map(p=>{ const b=bmInfo(p.stranka); const nova=amountNum(p.premija)*(1+b.pct/100);
+    return `<tr><td>${esc(p.id)}</td><td>${esc(p.stranka)}</td><td>${esc(p.potek)}</td><td>${b.n}</td><td><span class="tag ${b.pct>0?'risk':'ok'}">${b.txt}</span></td><td>${esc(p.premija)}</td><td><b>${fmtEur(nova)}</b></td>
+    <td>${p.bmObnova && p.bmObnova===p.potek ? '<span class="note">Že obnovljeno</span>' : `<button class="rowbtn" data-bmapply="${p._id}">Uporabi ob obnovi</button>`}</td></tr>`; }).join('')}</tbody></table>` : '<p class="note">Ni avtomobilskih polic.</p>'}</div>`;
+}
+function bmApply(id){
+  const p=state.police.find(r=>r._id===id); if(!p) return;
+  const b=bmInfo(p.stranka); const nova=amountNum(p.premija)*(1+b.pct/100);
+  if(!confirm('Obnovim polico '+p.id+' z novo premijo '+fmtEur(nova)+' ('+b.txt+')?')) return;
+  const d=parseDateSl(p.potek)||new Date();
+  p.premija=fmtEur(nova); p.potek=fmtDateSl(new Date(d.getFullYear()+1,d.getMonth(),d.getDate())); p.status='aktivna'; p.bmObnova=p.potek;
+  logAction('Bonus-malus','Polica '+p.id+' obnovljena ('+b.txt+')'); persist(); renderMain();
+}
+
+/* --- 4. Načelo štirih oči --- */
+function veljavneOdobritve(s){ return (s.odobritve||[]).filter(o=>o.vrednost===s.vrednost); }
+function jeDvojnoOdobrena(s){ return new Set(veljavneOdobritve(s).map(o=>o.uporabnisko)).size>=2; }
+function izplacilaHtml(){
+  const l=state.skode.filter(s=>amountNum(s.vrednost)>PRAG_STIRI_OCI);
+  return `<div class="panel"><h3>Izplačila škod nad ${fmtEur(PRAG_STIRI_OCI)} — načelo štirih oči</h3>
+  <p class="note">Izplačilo zahteva odobritev dveh različnih uporabnikov. Če se vrednost škode spremeni, odobritve ne veljajo več. Pravilo se uveljavlja v aplikaciji; brez strežnika ga lahko obide kdor ureja datoteko z podatki.</p>
+  ${l.length? `<table><thead><tr><th>Škoda</th><th>Stranka</th><th>Vrednost</th><th>Faza</th><th>Odobritve</th><th></th></tr></thead><tbody>
+  ${l.map(s=>{ const od=veljavneOdobritve(s); const jaz=session && od.some(o=>o.uporabnisko===session.uporabnisko);
+    const izpl=/izpla/i.test(s.faza);
+    const akcija = izpl ? '<span class="tag ok">izplačano</span>' : jeDvojnoOdobrena(s) ? `<button class="rowbtn" data-payout="${s._id}">Izplačaj</button>` : jaz ? '<span class="note">Čaka drugo osebo</span>' : `<button class="rowbtn" data-approve="${s._id}">Odobri</button>`;
+    return `<tr><td>${esc(s.id)}</td><td>${esc(s.stranka)}</td><td>${esc(s.vrednost)}</td><td>${tagHtml(s.faza)}</td><td>${od.length? od.map(o=>esc(o.ime)+' ('+esc(o.ts)+')').join('<br>') : '—'}</td><td>${akcija}</td></tr>`; }).join('')}</tbody></table>` : '<p class="note">Ni škod nad pragom.</p>'}</div>`;
+}
+function approveSkoda(id){
+  const s=state.skode.find(r=>r._id===id); if(!s||!session) return;
+  if(veljavneOdobritve(s).some(o=>o.uporabnisko===session.uporabnisko)){ alert('To izplačilo si že odobril — potrebna je druga oseba.'); return; }
+  (s.odobritve=s.odobritve||[]).push({uporabnisko:session.uporabnisko, ime:session.ime, ts:new Date().toLocaleString('sl-SI'), vrednost:s.vrednost});
+  logAction('Odobritev izplačila', s.id+' ('+s.vrednost+')'); persist(); renderMain();
+}
+function payoutSkoda(id){
+  const s=state.skode.find(r=>r._id===id); if(!s) return;
+  if(!jeDvojnoOdobrena(s)){ alert('Potrebni sta dve odobritvi različnih oseb.'); return; }
+  s.faza='izplačano'; logAction('Izplačilo škode', s.id+' ('+s.vrednost+')'); persist(); renderMain();
+}
+
+/* --- Povzetki nad tabelami (rezerve, termini, NPS) --- */
+const summaries={
+  rezerve:()=>{ const sum=k=>state.rezerve.reduce((a,r)=>a+amountNum(r[k]),0);
+    const kpi=(v,l)=>`<div class="kpi"><div class="num">${fmtEur(v)}</div><div class="lbl">${l}</div></div>`;
+    return `<div class="grid">${kpi(sum('rezerva'),'Skupne rezervacije')}${kpi(sum('izplacano'),'Izplačano')}${kpi(sum('rezerva')-sum('izplacano'),'Neizplačana rezerva')}${kpi(sum('regresZahtevek')-sum('regresPrejet'),'Odprte terjatve iz regresa')}</div>`; },
+  termini:()=>{ const today=new Date(); today.setHours(0,0,0,0);
+    const up=state.termini.map(t=>({t,d:parseDateSl(t.datum)})).filter(x=>x.d && x.d>=today && x.d-today<=14*86400000 && !/opravljen/i.test(x.t.status)).sort((a,b)=>a.d-b.d||String(a.t.ura).localeCompare(String(b.t.ura)));
+    return `<div class="panel"><h3>Naslednjih 14 dni (${up.length})</h3>${up.length? up.map(x=>`<p style="font-size:13.5px"><b>${esc(x.t.datum)} ${esc(x.t.ura)}</b> — ${esc(x.t.vrsta)} · ${esc(x.t.oseba)} · ${esc(x.t.lokacija)} <span class="note">(${esc(x.t.povezava)})</span></p>`).join('') : '<p class="note">Ni načrtovanih terminov.</p>'}</div>`; },
+  nps:()=>{ const N=state.nps.filter(n=>n.ocena!=='' && !isNaN(+n.ocena));
+    if(!N.length) return '<div class="panel"><p class="note">Še ni ocen. Stranke lahko zaključeno škodo ocenijo v portalu.</p></div>';
+    const o=N.map(n=>+n.ocena); const pr=o.filter(x=>x>=9).length, de=o.filter(x=>x<=6).length;
+    const by={}; N.forEach(n=>{ const k=n.ocenjevani||'—'; (by[k]=by[k]||[]).push(+n.ocena); });
+    return `<div class="grid"><div class="kpi"><div class="num">${Math.round((pr-de)/o.length*100)}</div><div class="lbl">NPS (−100 do +100)</div></div><div class="kpi"><div class="num">${(o.reduce((a,b)=>a+b,0)/o.length).toFixed(1)}</div><div class="lbl">Povprečna ocena (${o.length} ocen)</div></div></div>
+    <div class="panel"><h3>Po cenilcu / zastopniku</h3><table><thead><tr><th>Oseba</th><th>Št. ocen</th><th>Povprečje</th></tr></thead><tbody>${Object.keys(by).map(k=>`<tr><td>${esc(k)}</td><td>${by[k].length}</td><td>${(by[k].reduce((a,b)=>a+b,0)/by[k].length).toFixed(1)}</td></tr>`).join('')}</tbody></table></div>`; },
+};
+
+/* --- 8. NPS ocena v portalu za stranke --- */
+function openRateModal(skodaId){
+  $('#formBox').innerHTML=`<h3>Kako ste zadovoljni z obravnavo škode?</h3>
+  <div class="field"><label>Ocena (0 = sploh ne, 10 = zelo zadovoljen)</label><select id="rate_val">${[10,9,8,7,6,5,4,3,2,1,0].map(n=>`<option>${n}</option>`).join('')}</select></div>
+  <div class="field"><label>Komentar (neobvezno)</label><textarea id="rate_txt"></textarea></div>
+  <div class="actions"><button class="btn" onclick="closeOverlay('formOverlay')">Prekliči</button><button class="btn primary" onclick="saveRate('${skodaId}')">Pošlji oceno</button></div>`;
+  $('#formOverlay').classList.add('show');
+}
+function saveRate(skodaId){
+  const s=state.skode.find(r=>r._id===skodaId); if(!s) return;
+  const v=$('#rate_val').value;
+  state.nps.push({_id:uid(), skoda:s.id, stranka:s.stranka, ocena:+v, komentar:$('#rate_txt').value, ocenjevani:s.cenilec||'', datum:fmtDateSl(new Date())});
+  logAction('NPS ocena', s.id+': '+v+'/10'); persist(); closeOverlay('formOverlay'); renderMain();
+}
+
+/* --- 7. Množični uvoz CSV --- */
+const imp={schema:'police', rows:[], unknown:[], errors:[], fileName:''};
+const DATE_KEYS=/^(potek|datum|rok|rokPlacila|datumIzdaje|datumSoglasja|rokHrambe|datumZaposlitve|veljavnost)$/;
+function impSchemas(){ return Object.keys(schemas).filter(k=>!['uporabniki','strankeRacuni'].includes(k)); }
+function parseCsv(text){
+  text=String(text).replace(/^\uFEFF/,'');
+  const first=text.split(/\r?\n/)[0]||'';
+  const delim=first.split(';').length>first.split(',').length?';':',';
+  const rows=[]; let row=[], cur='', q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){ cur+='"'; i++; } else q=false; } else cur+=c; }
+    else if(c==='"') q=true;
+    else if(c===delim){ row.push(cur); cur=''; }
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&text[i+1]==='\n') i++; row.push(cur); cur=''; rows.push(row); row=[]; }
+    else cur+=c;
+  }
+  if(cur!==''||row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r=>r.some(x=>x.trim()!==''));
+}
+function impSetSchema(v){ imp.schema=v; imp.rows=[]; imp.unknown=[]; imp.errors=[]; imp.fileName=''; renderMain(); }
+function impFileChosen(ev){
+  const f=ev.target.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=()=>{ impProcess(r.result,f.name); renderMain(); }; r.readAsText(f);
+}
+function impProcess(text,name){
+  const sch=schemas[imp.schema]; const table=parseCsv(text);
+  imp.fileName=name; imp.rows=[]; imp.errors=[]; imp.unknown=[];
+  if(table.length<2){ imp.errors.push('Datoteka nima glave in vsaj ene vrstice podatkov.'); return; }
+  const map=table[0].map(h=>{ h=h.trim(); const f=sch.fields.find(f=>f.k.toLowerCase()===h.toLowerCase()||f.l.toLowerCase()===h.toLowerCase()); if(!f&&h) imp.unknown.push(h); return f?f.k:null; });
+  const firstKey=sch.fields[0].k; const seen=new Set();
+  table.slice(1).forEach((cells,i)=>{
+    const rec={}; sch.fields.forEach(f=>rec[f.k]='');
+    map.forEach((k,j)=>{ if(k) rec[k]=(cells[j]||'').trim(); });
+    const errs=[];
+    if(!rec[firstKey]) errs.push('manjka "'+sch.fields[0].l+'"');
+    else if(firstKey==='id'){ if(state[imp.schema].some(r=>r.id===rec.id)||seen.has(rec.id)) errs.push('podvojen '+sch.fields[0].l); seen.add(rec.id); }
+    sch.fields.forEach(f=>{ if(DATE_KEYS.test(f.k) && rec[f.k] && rec[f.k]!=='—' && !parseDateSl(rec[f.k])) errs.push('"'+f.l+'" ni v obliki dd.mm.llll'); });
+    imp.rows.push({rec, errs, line:i+2});
+  });
+}
+function impTemplate(){
+  const csv='\uFEFF'+schemas[imp.schema].fields.map(f=>f.l).join(';')+'\r\n';
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='predloga-'+imp.schema+'.csv'; a.click();
+}
+function impRun(){
+  const ok=imp.rows.filter(r=>!r.errs.length); if(!ok.length) return;
+  pushBackup(' (pred CSV uvozom)');
+  ok.forEach(r=>state[imp.schema].push({_id:uid(), ...r.rec}));
+  logAction('CSV uvoz', schemas[imp.schema].label+': '+ok.length+' vrstic'); persist();
+  imp.rows=[]; imp.fileName=''; alert('Uvoženih vrstic: '+ok.length); renderMain();
+}
+function importHtml(){
+  const sch=schemas[imp.schema]; const ok=imp.rows.filter(r=>!r.errs.length), bad=imp.rows.filter(r=>r.errs.length);
+  return `<div class="panel"><h3>1. Izberi tabelo in datoteko</h3>
+  <div class="toolbar"><select onchange="impSetSchema(this.value)" style="padding:8px;border:1px solid var(--line);border-radius:7px">${impSchemas().map(k=>`<option value="${k}" ${k===imp.schema?'selected':''}>${esc(schemas[k].label)}</option>`).join('')}</select>
+  <button class="btn" onclick="impTemplate()">Prenesi predlogo (CSV)</button><input type="file" accept=".csv,text/csv" onchange="impFileChosen(event)"></div>
+  <p class="note">Prva vrstica so imena stolpcev (naziv ali ključ polja). Ločilo ; ali , se zazna samodejno. Iz Excela: Shrani kot CSV. Polja: ${sch.fields.map(f=>esc(f.l)).join(', ')}.</p></div>
+  ${imp.errors.map(e=>`<div class="panel"><span class="tag risk">${esc(e)}</span></div>`).join('')}
+  ${imp.rows.length? `<div class="panel"><h3>2. Predogled — ${esc(imp.fileName)}</h3>
+    <p class="note">Veljavnih vrstic: <b>${ok.length}</b> · z napako (preskočene): <b>${bad.length}</b>${imp.unknown.length? ' · neznani stolpci (prezrti): '+imp.unknown.map(esc).join(', ') : ''}</p>
+    <table><thead><tr><th>Vrstica</th>${sch.fields.map(f=>`<th>${esc(f.l)}</th>`).join('')}<th>Preverjanje</th></tr></thead><tbody>
+    ${imp.rows.slice(0,10).map(r=>`<tr><td>${r.line}</td>${sch.fields.map(f=>`<td>${esc(r.rec[f.k])}</td>`).join('')}<td>${r.errs.length? `<span class="tag risk">${esc(r.errs.join('; '))}</span>` : '<span class="tag ok">v redu</span>'}</td></tr>`).join('')}</tbody></table>
+    ${imp.rows.length>10? `<p class="note">Prikazanih prvih 10 od ${imp.rows.length} vrstic.</p>`:''}
+    ${bad.length>10? `<p class="note">Vrstice z napakami: ${bad.map(r=>r.line).join(', ')}</p>`:''}
+    <div class="actions" style="justify-content:flex-start"><button class="btn primary" onclick="impRun()" ${ok.length?'':'disabled'}>Uvozi ${ok.length} veljavnih vrstic</button></div></div>` : ''}`;
+}
+
+/* --- 9. Asistent --- */
+let chat=[], chatBusy=false;
+function aiKey(){ return sessionStorage.getItem('zavis_ai_key')||''; }
+function aiSaveKey(){ const v=$('#ai_key').value.trim(); if(v) sessionStorage.setItem('zavis_ai_key',v); renderMain(); }
+function aiClearKey(){ sessionStorage.removeItem('zavis_ai_key'); renderMain(); }
+function chatClear(){ chat=[]; renderMain(); }
+function stateForAI(){
+  const c=JSON.parse(JSON.stringify(state));
+  ['auditLog','uporabniki','strankeRacuni'].forEach(k=>delete c[k]);
+  Object.keys(c).forEach(k=>{ if(Array.isArray(c[k])) c[k].forEach(r=>{ delete r._id; delete r.priloge; delete r.odobritve; }); });
+  return JSON.stringify(c).slice(0,60000);
+}
+async function askClaude(){
+  const hist=chat.slice(0,-1).slice(-7).map(m=>({role:m.role,content:m.text}));
+  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    headers:{'content-type':'application/json','x-api-key':aiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-5',max_tokens:1000,
+      system:'Si asistent zavarovalniškega informacijskega sistema ŠČIT. Odgovarjaj v slovenščini, kratko in natančno, samo na podlagi spodnjih podatkov (JSON). Če podatka ni, to povej. Današnji datum: '+fmtDateSl(new Date())+'\n\nPODATKI:\n'+stateForAI(),
+      messages:hist})});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const data=await res.json();
+  return (data.content||[]).map(b=>b.text||'').join('').trim()||'(prazen odgovor)';
+}
+async function chatSend(){
+  if(chatBusy) return; const inp=$('#chat_in'); const q=(inp.value||'').trim(); if(!q) return;
+  chat.push({role:'user',text:q}); chat.push({role:'assistant',text:'…'}); chatBusy=true; renderMain();
+  let ans;
+  try{ ans = aiKey()? await askClaude() : localAnswer(q); }
+  catch(e){ ans='Napaka pri klicu Claude API ('+e.message+'). Odgovor iz lokalnih pravil:\n'+localAnswer(q); }
+  chat[chat.length-1]={role:'assistant',text:ans}; chatBusy=false; renderMain();
+}
+function provizijaZa(z){ const sk=state.police.filter(p=>p.zastopnik===z.ime).reduce((a,p)=>a+amountNum(p.premija),0); return sk*(parseFloat(z.provizija)||0)/100; }
+function localAnswer(q){
+  const s=q.toLowerCase(), today=new Date(); today.setHours(0,0,0,0);
+  const regije=[...new Set(state.police.map(p=>p.regija).filter(Boolean))];
+  const reg=regije.find(r=>s.includes(r.toLowerCase().slice(0,Math.max(3,r.length-2))));
+  const list=(a,f)=>a.length? '\n'+a.map(x=>'• '+f(x)).join('\n') : '';
+  if(/polic/.test(s) && /poteč|potek/.test(s)){
+    const mes=/ta mesec|tem mesecu/.test(s), teden=/teden/.test(s);
+    let l=state.police.filter(p=>{ const d=parseDateSl(p.potek); if(!d) return false;
+      if(mes) return d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear();
+      const dd=(d-today)/86400000; return dd>=0&&dd<=(teden?7:30); });
+    if(reg) l=l.filter(p=>p.regija===reg);
+    return 'Polic, ki potečejo '+(mes?'ta mesec':teden?'v naslednjih 7 dneh':'v naslednjih 30 dneh')+(reg?' v regiji '+reg:'')+': '+l.length+'.'+list(l,p=>p.id+' — '+p.stranka+' ('+p.potek+')');
+  }
+  if(/škod/.test(s) && /nujn/.test(s)){ const l=state.skode.filter(x=>/nujn/i.test(x.prioriteta)); return 'Nujnih škod: '+l.length+'.'+list(l,x=>x.id+' — '+x.stranka+', '+x.vrednost+' ('+x.faza+')'); }
+  if(/škod/.test(s) && /odprt|nerešen|aktiv|koliko/.test(s)){ const l=state.skode.filter(x=>!/izpla|zaklj|zaprt/i.test(x.faza)); return 'Odprtih škodnih zahtevkov: '+l.length+' (vseh: '+state.skode.length+').'+list(l,x=>x.id+' — '+x.stranka+', '+x.vrsta+' ('+x.faza+')'); }
+  if(/račun/.test(s) && /neplač|zamud|odprt|zapadl/.test(s)){ const l=state.racuni.filter(r=>/zamud|odprto/i.test(r.status)); return 'Neplačanih ali zapadlih računov: '+l.length+', skupaj '+fmtEur(l.reduce((a,r)=>a+amountNum(r.znesek),0))+'.'+list(l,r=>r.id+' — '+r.prejemnik+', '+r.znesek+' (rok '+r.rokPlacila+')'); }
+  if(/provizij/.test(s)){ return 'Izračunane provizije zastopnikov:'+list(state.zastopniki,z=>z.ime+': '+fmtEur(provizijaZa(z)))+'\nSkupaj: '+fmtEur(state.zastopniki.reduce((a,z)=>a+provizijaZa(z),0)); }
+  if(/nps|zadovoljstv/.test(s)){ const o=state.nps.map(n=>+n.ocena).filter(x=>!isNaN(x)); if(!o.length) return 'Ocen zadovoljstva še ni.'; const pr=o.filter(x=>x>=9).length, de=o.filter(x=>x<=6).length; return 'NPS: '+Math.round((pr-de)/o.length*100)+' (iz '+o.length+' ocen), povprečna ocena '+(o.reduce((a,b)=>a+b,0)/o.length).toFixed(1)+'.'; }
+  if(/termin|obisk|ogled|danes|jutri/.test(s)){ const l=state.termini.filter(t=>{ const d=parseDateSl(t.datum); return d && d>=today && (d-today)/86400000<=(/danes/.test(s)?0:/jutri/.test(s)?1:7) && !/opravljen/i.test(t.status); }); return 'Terminov: '+l.length+'.'+list(l,t=>t.datum+' '+t.ura+' — '+t.vrsta+', '+t.oseba+' ('+t.povezava+')'); }
+  const st=[...state.stranke.map(x=>x.ime),...state.police.map(x=>x.stranka)].find(n=>n && s.includes(n.toLowerCase()));
+  if(st){ const p=state.police.filter(x=>x.stranka===st), k=state.skode.filter(x=>x.stranka===st), r=state.racuni.filter(x=>x.prejemnik===st);
+    return 'Stranka '+st+': '+p.length+' polic, '+k.length+' škod, '+r.length+' računov.'+list(p,x=>x.id+' — '+x.produkt+' ('+x.status+')')+list(k,x=>x.id+' — '+x.vrsta+' ('+x.faza+')'); }
+  if(/koliko/.test(s) && /polic/.test(s)){ const l=reg?state.police.filter(p=>p.regija===reg):state.police; return 'Polic'+(reg?' v regiji '+reg:'')+': '+l.length+'.'; }
+  if(/koliko/.test(s) && /strank/.test(s)) return 'Strank v CRM: '+state.stranke.length+'.';
+  if(/odgovor|pismo|dopis|e-?pošt|sporočil/.test(s)) return 'Osnutek:\n\nSpoštovani/a,\n\nhvala za vaše sporočilo. Vašo zadevo smo prejeli in jo obravnavamo. O nadaljnjih korakih vas bomo obvestili v 5 delovnih dneh.\n\nLep pozdrav,\n'+(session?session.ime:'Ekipa ŠČIT')+'\n\n(Za prilagojene odgovore poveži Claude API spodaj.)';
+  return 'Tega vprašanja lokalna pravila ne razumejo. Znam odgovoriti na: poteka polic (po regiji, ta mesec/teden), odprte in nujne škode, neplačani računi, provizije, NPS, termini, podatki o stranki po imenu, število polic/strank. Za prosta vprašanja poveži Claude API spodaj.';
+}
+function chatHtml(){
+  const key=aiKey();
+  return `<div class="panel"><h3>Asistent ${key?'(Claude API)':'(lokalna pravila)'}</h3>
+  <div id="chatbox" style="max-height:340px;overflow:auto;margin-bottom:12px">${chat.length? chat.map(m=>`<div style="margin:8px 0;padding:10px 12px;border-radius:8px;white-space:pre-wrap;font-size:13.5px;background:${m.role==='user'?'var(--info-bg)':'var(--paper)'}"><b>${m.role==='user'?'Ti':'Asistent'}:</b> ${esc(m.text)}</div>`).join('') : '<p class="note">Vprašaj npr.: "Koliko polic poteče ta mesec v Celju?", "Katere škode so nujne?", "Koliko je neplačanih računov?", "Napiši odgovor stranki".</p>'}</div>
+  <div class="toolbar"><input type="text" id="chat_in" style="flex:1" placeholder="Zastavi vprašanje..." onkeydown="if(event.key==='Enter')chatSend()"><button class="btn primary" onclick="chatSend()">Pošlji</button><button class="btn" onclick="chatClear()">Počisti</button></div></div>
+  <div class="panel"><h3>Napredni način: Claude API (neobvezno)</h3>
+  <p class="note">Brez ključa asistent odgovarja iz lokalnih pravil (le vnaprej predvidena vprašanja; podatki ne zapustijo naprave). Z lastnim Anthropic API ključem odgovarja na prosta vprašanja, vendar se pri vsakem vprašanju v Anthropic pošlje izvleček podatkov sistema (police, škode, stranke, računi … brez gesel in priponk). Pri osebnih podatkih to preveri z GDPR pravili. Ključ se hrani samo za to sejo.</p>
+  ${key? '<button class="btn danger" onclick="aiClearKey()">Odstrani ključ</button>' : '<div class="toolbar"><input type="password" id="ai_key" placeholder="sk-ant-..." style="flex:1"><button class="btn" onclick="aiSaveKey()">Shrani ključ za sejo</button></div>'}</div>`;
+}
+
+/* ================= BANČNA USKLADITEV ================= */
+let bankLines=[];
+function parseBankCsv(text){
+  return text.split(/\r?\n/).filter(Boolean).slice(1).map(line=>{
+    const parts = line.split(line.includes(';')?';':',');
+    return {datum:(parts[0]||'').trim(), znesek:(parts[1]||'').trim(), opis:(parts[2]||'').trim()};
+  });
+}
+function bankFileChosen(ev){
+  const f=ev.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ bankLines=parseBankCsv(r.result); renderMain(); };
+  r.readAsText(f);
+}
+function amountNum(v){
+  let s=String(v==null?'':v).replace(/[^\d,.-]/g,'');
+  if(s.includes(',')) s=s.replace(/\./g,'').replace(',','.');
+  else if(/^-?\d{1,3}(\.\d{3})+$/.test(s)) s=s.replace(/\./g,'');
+  return parseFloat(s)||0;
+}
+function confirmBankMatch(idx){
+  const line=bankLines[idx]; if(!line) return;
+  const racun = state.racuni.find(r=>r.status!=='plačano' && Math.abs(amountNum(r.znesek)-amountNum(line.znesek))<0.01);
+  if(racun){ racun.status='plačano'; logAction('Uskladitev plačila', racun.id+' potrjen iz bančnega izpiska'); persist(); }
+  bankLines.splice(idx,1); renderMain();
+}
+
+/* ================= OBVESTILA (rok opozorila) ================= */
+function computeAlerts(){
+  const today=new Date(); const alerts=[];
+  state.police.forEach(p=>{ const d=parseDateSl(p.potek); if(d){ const days=Math.round((d-today)/86400000); if(days>=0 && days<=30) alerts.push({tip:'Polica poteka',besedilo:p.id+' ('+p.stranka+') poteče čez '+days+' dni',tag: days<=7?'risk':'wait'}); } });
+  state.racuni.forEach(r=>{ const d=parseDateSl(r.rokPlacila); if(d && r.status!=='plačano'){ const days=Math.round((d-today)/86400000); if(days<=7) alerts.push({tip:'Račun',besedilo:r.id+' ('+r.prejemnik+') — rok plačila čez '+days+' dni',tag: days<0?'risk':'wait'}); } });
+  state.naloge.forEach(n=>{ const d=parseDateSl(n.rok); if(d && !/zaklj|konč/i.test(n.status)){ const days=Math.round((d-today)/86400000); if(days<=7) alerts.push({tip:'Naloga',besedilo:n.naslov+' — rok čez '+days+' dni',tag: days<0?'risk':'wait'}); } });
+  state.gdpr.forEach(g=>{ const d=parseDateSl(g.rokHrambe); if(d && d<today) alerts.push({tip:'GDPR',besedilo:'Rok hrambe podatkov za '+g.stranka+' je potekel ('+g.rokHrambe+')',tag:'risk'}); });
+  state.termini.forEach(t=>{ const d=parseDateSl(t.datum); if(d && !/opravljen/i.test(t.status)){ const days=Math.round((d-today)/86400000); if(days>=0 && days<=2) alerts.push({tip:'Termin',besedilo:t.vrsta+' ('+t.povezava+') — '+t.datum+' ob '+t.ura+', '+t.oseba,tag:'wait'}); } });
+  state.skode.forEach(k=>{ if(/izpla|zaklj|zaprt/i.test(k.faza) && !state.nps.some(n=>n.skoda===k.id)) alerts.push({tip:'Anketa',besedilo:'Škoda '+k.id+' ('+k.stranka+') je zaključena — pošlji anketo o zadovoljstvu (stranka jo lahko izpolni tudi v portalu)',tag:'wait'}); });
+  return alerts;
+}
+
+/* ================= GLAVNO IZRISOVANJE ================= */
+function renderMain(){
+  const mod = modules.find(x=>x.id===current);
+  if(!mod || !moduleAllowed(mod)){ $('#main').innerHTML='<p class="note">Nimaš dostopa do tega modula.</p>'; return; }
+  let body='';
+  if(mod.type==='crud'){ const sk=mod.schema||mod.id; body = (summaries[sk]?summaries[sk]():'') + renderCrudTable(mod.id); }
+  else if(current==='kalkulator'){ body = calcHtml(); }
+  else if(current==='bonusmalus'){ body = bmHtml(); }
+  else if(current==='izplacila'){ body = izplacilaHtml(); }
+  else if(current==='uvoz'){ body = importHtml(); }
+  else if(current==='asistent'){ body = chatHtml(); }
+  else if(current==='dash'){
+    const S=state, open=S.skode.filter(s=>!/izpla|zaklj|zaprt|zavrn/i.test(s.faza));
+    const urgent=S.skode.filter(s=>/nujn/i.test(s.prioriteta)).length;
+    const unpaid=S.racuni.filter(r=>/zamud|odprto|delno/i.test(r.status));
+    const leadsOpen=S.leads.filter(l=>!/sklenjeno|izgubljeno/i.test(l.faza));
+    const complaints=S.pritozbe.filter(p=>!/reš|zavrn|zaklj/i.test(p.status)).length;
+    const nn=S.nps.map(n=>+n.ocena).filter(x=>!isNaN(x)&&x!==''); const npsV=nn.length? Math.round((nn.filter(x=>x>=9).length-nn.filter(x=>x<=6).length)/nn.length*100):null;
+    const kpi=(n,l,sub,tone)=>`<div class="kpi ${tone?'t-'+tone:''}"><div class="num">${n}</div><div class="lbl">${l}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>`;
+    const alerts=computeAlerts().slice(0,6);
+    const byProd={}; S.police.forEach(p=>{ const k=p.produkt||'Drugo'; byProd[k]=(byProd[k]||0)+1; });
+    const prodRows=Object.entries(byProd).sort((a,b)=>b[1]-a[1]).slice(0,7); const maxP=Math.max(1,...prodRows.map(x=>x[1]));
+    const qa=[['police','Nova polica'],['skode','Nova škoda'],['stranke','Nova stranka'],['racuni','Nov račun'],['leads','Nov lead'],['ponudbe','Nova ponudba'],['termini','Nov termin']].filter(([k])=>modules.some(m=>(m.schema||m.id)===k&&m.type==='crud'&&moduleAllowed(m)));
+    const tr=S.kpiTrend.slice(-6); const maxT=Math.max(1,...tr.map(x=>+x.prihodki||0));
+    body = `<div class="quick">${qa.map(([k,l])=>`<button class="btn" onclick="quickAdd('${k}')">＋ ${l}</button>`).join('')}</div>
+    <div class="grid">
+      ${kpi(S.police.length,'Zavarovalne police','Aktivnih: '+S.police.filter(p=>/^aktiv/i.test(p.status)).length)}
+      ${kpi(open.length,'Odprti škodni zahtevki',urgent?urgent+' nujnih':'Ni nujnih',urgent?'risk':'ok')}
+      ${kpi(unpaid.length,'Neplačani / zapadli računi',fmtEur(unpaid.reduce((a,r)=>a+amountNum(r.znesek),0)),unpaid.length?'wait':'ok')}
+      ${kpi(leadsOpen.length,'Aktivni leadi',fmtEur(leadsOpen.reduce((a,l)=>a+amountNum(l.vrednost),0))+' potenciala')}
+      ${kpi(complaints,'Odprte pritožbe','',complaints?'wait':'ok')}
+      ${kpi(npsV===null?'—':npsV,'NPS zadovoljstvo',nn.length+' ocen')}
+    </div>
+    <div class="two-col">
+      <div class="panel"><h3>Opozorila in roki</h3>${alerts.length? alerts.map(a=>`<div class="item-row"><span><span class="tag ${a.tag||'wait'}">${esc(a.tip)}</span></span><span>${esc(a.besedilo)}</span></div>`).join('') : '<p class="note">Ni opozoril v naslednjih dneh. 👍</p>'}
+        ${computeAlerts().length>6?`<p class="note"><button class="lnk" data-m="obvestila">Prikaži vsa opozorila →</button></p>`:''}</div>
+      <div class="panel"><h3>Portfelj po produktih</h3>${prodRows.length? prodRows.map(([k,n])=>`<div class="hbar"><span>${esc(k)}</span><div class="tr"><i style="width:${n/maxP*100}%"></i></div><b>${n}</b></div>`).join('') : '<p class="note">Ni polic.</p>'}</div>
+    </div>
+    <div class="two-col">
+      <div class="panel"><h3>Prihodki po mesecih (mio €)</h3>${tr.length? `<div class="bars">${tr.map(x=>`<div class="bar" style="height:${(+x.prihodki||0)/maxT*100}%"><span>${esc(x.prihodki)}</span><em>${esc(x.mesec)}</em></div>`).join('')}</div>` : '<p class="note">Dodaj podatke v modulu KPI po mesecih.</p>'}</div>
+      <div class="panel"><h3>Zadnja aktivnost</h3>${S.auditLog.slice(0,6).map(l=>`<div class="item-row"><span class="t">${esc(l.ts)}</span><span><b>${esc(l.action)}</b> — ${esc(l.detail)}<br><span class="note" style="margin:0">${esc(l.user)}</span></span></div>`).join('') || '<p class="note">Še ni aktivnosti.</p>'}</div>
+    </div>`;
+  }
+  else if(current==='banka'){
+    body = `<div class="panel"><h3>Uvoz bančnega izpiska (CSV: datum,znesek,opis)</h3>
+      <input type="file" accept=".csv" onchange="bankFileChosen(event)">
+      <p class="note">Vrstice se poskusijo samodejno ujemati z odprtimi računi po znesku. Ujemanje potrdiš ročno.</p></div>
+    ${bankLines.length? `<div class="panel"><h3>Vrstice iz izpiska (${bankLines.length})</h3>
+      ${bankLines.map((l,i)=>`<p style="font-size:13px">${esc(l.datum)} · ${esc(l.znesek)} · ${esc(l.opis)}
+        <button class="rowbtn" data-confirmpay="${i}">Poskusi uskladiti in potrdi plačilo</button></p>`).join('')}</div>` : ''}`;
+  }
+  else if(current==='vodstvo'){
+    const t=state.kpiTrend;
+    const maxP=Math.max(...t.map(x=>+x.prihodki),1);
+    body = `<div class="panel"><h3>Prihodki po mesecih (mio €)</h3><div class="bars">
+      ${t.map(x=>`<div class="bar" style="height:${(x.prihodki/maxP)*100}%"><span>${x.prihodki}</span><em>${x.mesec}</em></div>`).join('')}</div></div>
+    <div class="two-col">
+      <div class="panel"><h3>Škodninost (%)</h3><div class="bars">${t.map(x=>`<div class="bar" style="height:${x.skodninost}%"><span>${x.skodninost}%</span><em>${x.mesec}</em></div>`).join('')}</div></div>
+      <div class="panel"><h3>Kombinirani količnik (%)</h3><div class="bars">${t.map(x=>`<div class="bar" style="height:${Math.min(x.kombinirani,100)}%"><span>${x.kombinirani}%</span><em>${x.mesec}</em></div>`).join('')}</div></div>
+    </div><p class="note">Podatke za grafe urejaš v modulu "KPI po mesecih".</p>`;
+  }
+  else if(current==='zemljevid'){
+    const byRegion={};
+    state.police.forEach(p=>{ const r=p.regija||'Neznano'; byRegion[r]=byRegion[r]||{n:0,risk:0}; byRegion[r].n++; if(statusTag(p.status)==='risk') byRegion[r].risk++; });
+    body = `<div class="panel"><h3>Izpostavljenost portfelja po regijah</h3><p class="note">Shematski prikaz iz podatkov modula Police, ni prava geografska karta.</p>
+    <div class="region-grid">${Object.keys(byRegion).map(r=>{ const d=byRegion[r]; const ratio=d.risk/d.n; const cls=ratio>0.5?'risk':ratio>0?'wait':'ok';
+      return `<div class="regionbox"><b>${d.n}</b>${esc(r)}<div style="margin-top:6px"><span class="tag ${cls}">${d.risk} tvegan${d.risk===1?'a':'ih'}</span></div></div>`; }).join('')}</div></div>`;
+  }
+  else if(current==='provizije'){
+    body = `<div class="panel"><h3>Obračun provizij po zastopnikih</h3><table><thead><tr><th>Zastopnik</th><th>Št. polic</th><th>Skupna premija</th><th>Provizija (%)</th><th>Izračunana provizija</th></tr></thead><tbody>
+    ${state.zastopniki.map(z=>{
+      const pz = state.police.filter(p=>p.zastopnik===z.ime);
+      const skupaj = pz.reduce((a,p)=>a+amountNum(p.premija),0);
+      const odst = parseFloat(z.provizija)||0;
+      return `<tr><td>${esc(z.ime)}</td><td>${pz.length}</td><td>${skupaj.toFixed(2)} €</td><td>${odst}%</td><td><b>${(skupaj*odst/100).toFixed(2)} €</b></td></tr>`;
+    }).join('')}</tbody></table>
+    <p class="note">Upošteva police, kjer se polje "Zastopnik" ujema z imenom v modulu Zastopniki, in dogovorjeni odstotek. Mesečne premije (€/mes) so štete enkrat.</p></div>`;
+  }
+  else if(current==='portal'){
+    const ime = session.poveznaStranka;
+    const tb=(h,rows)=> rows.length? `<table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>` : '<p class="note">Ni zapisov.</p>';
+    body = `<div class="panel"><h3>Moje police</h3>${tb(['Št. police','Produkt','Premija','Status','Poteče'], state.police.filter(p=>p.stranka===ime).map(p=>`<tr><td>${esc(p.id)}</td><td>${esc(p.produkt)}</td><td>${esc(p.premija)}</td><td>${tagHtml(p.status)}</td><td>${esc(p.potek)}</td></tr>`))}</div>
+    <div class="panel"><h3>Moji škodni zahtevki</h3>${tb(['Št. zahtevka','Vrsta','Faza','Ocena storitve'], state.skode.filter(s=>s.stranka===ime).map(s=>{ const o=state.nps.find(n=>n.skoda===s.id); const zaprta=/izpla|zaklj|zaprt/i.test(s.faza); return `<tr><td>${esc(s.id)}</td><td>${esc(s.vrsta)}</td><td>${tagHtml(s.faza)}</td><td>${o? 'Ocena '+esc(o.ocena)+'/10' : (zaprta? `<button class="rowbtn" data-rate="${s._id}">Oceni</button>` : '—')}</td></tr>`; }))}</div>
+    <div class="panel"><h3>Moji računi</h3>${tb(['Št. računa','Znesek','Rok plačila','Status'], state.racuni.filter(r=>r.prejemnik===ime).map(r=>`<tr><td>${esc(r.id)}</td><td>${esc(r.znesek)}</td><td>${esc(r.rokPlacila)}</td><td>${tagHtml(r.status)}</td></tr>`))}</div>`;
+  }
+  else if(current==='tveganja'){
+    const cnt={nizko:0,srednje:0,visoko:0};
+    state.stranke.forEach(s=>{ const t=(s.tveganje||'').toLowerCase(); if(cnt[t]!==undefined) cnt[t]++; });
+    body = `<div class="panel"><h3>Portfelj strank po stopnji tveganja</h3><p class="note">Nizko: ${cnt.nizko} · Srednje: ${cnt.srednje} · Visoko: ${cnt.visoko}</p></div>
+    <div class="two-col">
+      <div class="panel"><h3>Napovedni modeli</h3><p class="note">Aktuarski modeli sprotno preračunavajo verjetnost škode po regiji, starosti vozila, vremenskih in vedenjskih (telematičnih) podatkih.</p></div>
+      <div class="panel"><h3>Klimatska tveganja</h3><p class="note">Satelitski in vremenski podatki napovedujejo izpostavljenost toči, poplavam in žledu na ravni posamezne police.</p></div>
+    </div>`;
+  }
+  else if(current==='antifraud'){
+    body = `<div class="panel"><h3>Mreža povezav (graf sumljivih vzorcev)</h3><p class="note">Samodejno odkrivanje ponavljajočih se udeležencev, prirejenih servisnih računov in časovnih nepravilnosti med sklenitvijo police in prijavo škode.</p></div>`;
+  }
+  else if(current==='pozavarovanje'){
+    body = `<div class="panel"><h3>Pozavarovalne pogodbe</h3><p class="note">Sledenje kvotnim in presežnim (XL) pogodbam po linijah poslovanja, s sprotnim izračunom lastnega deleža in obveznosti pozavarovatelja ob veliki škodi.</p></div>`;
+  }
+  else if(current==='dokumenti'){
+    body = `<div class="panel"><h3>Digitalni arhiv</h3><p class="note">Police, aneksi, cenitve in korespondenca — digitalno podpisani, verzionirani in iskalni po polnem besedilu. Dokumente hraniš v GitHub mapi ali lokalni mapi (glej Admin).</p></div>`;
+  }
+  else if(current==='skladnost'){
+    body = `<div class="grid"><div class="kpi"><div class="num">184 %</div><div class="lbl">Kapitalska ustreznost (SCR pokritost)</div></div>
+      <div class="kpi"><div class="num">A</div><div class="lbl">Interna ocena bonitete</div></div></div>
+    <div class="panel"><h3>Regulativno poročanje</h3><p class="note">Priprava poročil za AZN, Solvency II QRT obrazce, AML/KYC in GDPR sledljivost dostopov do osebnih podatkov.</p></div>`;
+  }
+  else if(current==='obvestila'){
+    const alerts=computeAlerts();
+    body = `<div class="panel"><h3>Opozorila pred roki (${alerts.length})</h3>
+    <p class="note">Prava samodejna e-pošta/SMS zahteva zunanjo storitev (npr. SMTP/SMS ponudnika), ki je v tej samostojni datoteki ni — spodaj lahko pripraviš e-poštno sporočilo prek svojega privzetega poštnega odjemalca.</p>
+    ${alerts.length? alerts.map(a=>`<p style="font-size:13.5px"><span class="tag ${a.tag||'wait'}">${esc(a.tip)}</span> — ${esc(a.besedilo)}
+      <a class="rowbtn" href="mailto:?subject=${encodeURIComponent('Opozorilo ŠČIT: '+a.tip)}&body=${encodeURIComponent(a.besedilo)}">Pripravi e-pošto</a></p>`).join('') : '<p class="note">Trenutno ni opozoril v naslednjih 30 dneh.</p>'}</div>`;
+  }
+  else if(current==='audit'){
+    body = `<div class="panel"><h3>Revizijska sled</h3>${state.auditLog.length? `<table><thead><tr><th>Čas</th><th>Uporabnik</th><th>Dejanje</th><th>Podrobnosti</th></tr></thead><tbody>
+      ${state.auditLog.map(l=>`<tr><td>${esc(l.ts)}</td><td>${esc(l.user)}</td><td>${esc(l.action)}</td><td>${esc(l.detail)}</td></tr>`).join('')}</tbody></table>` : '<p class="note">Ni še zabeleženih dogodkov.</p>'}</div>`;
+  }
+  $('#pageTitle').textContent=mod.label;
+  const gl=GROUPS.find(g=>g[0]===mod.g); $('#pageCrumb').textContent=gl?gl[1]:'';
+  document.title=mod.label+' — ŠČIT';
+  $('#main').innerHTML = body;
+  if(current==='kalkulator') calcUpdate();
+  if(current==='asistent'){ const c=$('#chatbox'); if(c) c.scrollTop=c.scrollHeight; const i=$('#chat_in'); if(i) i.focus(); }
+}
+
+/* ================= ADMIN: GitHub / lokalna mapa / JSON ================= */
+let dirHandle=null;
+function ghCfg(){ return JSON.parse(localStorage.getItem('gh_cfg')||'{}'); }
+function saveGhCfg(c){ localStorage.setItem('gh_cfg', JSON.stringify(c)); }
+function openAdmin(){
+  const c=ghCfg();
+  $('#adminBox').innerHTML = `<h3>Admin — povezave in shranjevanje podatkov</h3>
+  <p class="note">GitHub žeton se hrani samo za trajanje te seje.</p>
+  <div class="field"><label>GitHub repozitorij (lastnik/repo)</label><input id="gh_repo" value="${esc(c.repo||'')}" placeholder="uporabnik/moj-privatni-repo"></div>
+  <div class="field"><label>Pot do datoteke</label><input id="gh_path" value="${esc(c.path||'data/zavarovalnica.json')}"></div>
+  <div class="field"><label>Veja</label><input id="gh_branch" value="${esc(c.branch||'main')}"></div>
+  <div class="field"><label>Osebni dostopni žeton (token)</label><input id="gh_token" type="password" placeholder="ghp_..."></div>
+  <div class="actions" style="justify-content:flex-start">
+    <button class="btn" onclick="ghLoad()">Naloži iz GitHub</button>
+    <button class="btn primary" onclick="ghSave()">Shrani v GitHub</button>
+  </div>
+  <div class="log" id="ghlog"></div>
+  <hr class="hr">
+  <h3 style="font-size:15px">Mapa na tem računalniku / telefonu</h3>
+  <p class="note">Deluje v Chrome/Edge. Izbira mape velja za to sejo.</p>
+  <div class="actions" style="justify-content:flex-start">
+    <button class="btn" onclick="pickFolder()">Izberi mapo</button>
+    <button class="btn" onclick="folderLoad()">Naloži iz mape</button>
+    <button class="btn primary" onclick="folderSave()">Shrani v mapo</button>
+  </div>
+  <div class="log" id="folderlog">${window.showDirectoryPicker? '' : 'Ta brskalnik ne podpira izbire map — uporabi Chrome ali Edge.'}</div>
+  <hr class="hr">
+  <h3 style="font-size:15px">JSON datoteka</h3>
+  <div class="actions" style="justify-content:flex-start">
+    <button class="btn" onclick="downloadJson()">Prenesi JSON</button>
+    <label class="btn" style="cursor:pointer">Uvozi JSON<input type="file" accept="application/json" style="display:none" onchange="importJson(event)"></label>
+  </div>
+  <hr class="hr">
+  <h3 style="font-size:15px">Zgodovina in varnostne kopije (zadnjih 10)</h3>
+  <button class="btn" onclick="createBackup()">Ustvari varnostno kopijo zdaj</button>
+  <div style="margin-top:10px">${getBackups().length? getBackups().map((b,i)=>`<p style="font-size:12.5px">${esc(b.ts)} <button class="rowbtn" data-restorebackup="${i}">Obnovi</button></p>`).join('') : '<p class="note">Ni še varnostnih kopij. Pred vsakim prepisom podatkov (uvoz, GitHub, mapa) se ustvari samodejno.</p>'}</div>
+  <div class="actions"><button class="btn" onclick="closeOverlay('adminOverlay')">Zapri</button></div>`;
+  $('#adminOverlay').classList.add('show');
+}
+function getBackups(){ try{ return JSON.parse(localStorage.getItem('zavis_backups')||'[]'); }catch(e){ return []; } }
+function pushBackup(label){
+  const b=getBackups();
+  b.unshift({ts:new Date().toLocaleString('sl-SI')+label, data:JSON.stringify(state)});
+  while(b.length>10) b.pop();
+  try{ localStorage.setItem('zavis_backups', JSON.stringify(b)); }catch(e){ alert('Ni dovolj prostora za varnostno kopijo (priponke so lahko prevelike).'); }
+}
+function createBackup(){ pushBackup(''); logAction('Varnostna kopija','Ročna kopija'); persist(); openAdmin(); }
+function restoreBackup(idx){
+  const item=getBackups()[idx]; if(!item) return;
+  if(!confirm('Obnovim podatke iz kopije '+item.ts+'? Trenutno stanje se pred tem samodejno shrani.')) return;
+  pushBackup(' (pred obnovitvijo)');
+  state=JSON.parse(item.data); ensureState(); persist();
+  logAction('Obnovitev','Obnovljeno iz kopije '+item.ts); renderNav(); renderMain(); closeOverlay('adminOverlay');
+}
+function b64EncodeUtf8(str){ return btoa(unescape(encodeURIComponent(str))); }
+function b64DecodeUtf8(str){ return decodeURIComponent(escape(atob(str))); }
+async function ghLoad(){
+  const repo=$('#gh_repo').value.trim(), path=$('#gh_path').value.trim(), branch=$('#gh_branch').value.trim()||'main', token=$('#gh_token').value.trim();
+  const log=$('#ghlog'); log.textContent='Nalagam...'; saveGhCfg({repo,path,branch});
+  try{
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`,{headers:{Authorization:`token ${token}`,Accept:'application/vnd.github+json'}});
+    if(!res.ok) throw new Error('HTTP '+res.status+' — preveri repo, pot in žeton');
+    const data = await res.json();
+    pushBackup(' (pred GitHub nalaganjem)'); state = JSON.parse(b64DecodeUtf8(data.content)); ensureState();
+    persist(); logAction('GitHub','Podatki naloženi iz repozitorija'); renderNav(); renderMain();
+    log.textContent='Podatki uspešno naloženi iz GitHub.';
+  }catch(e){ log.textContent='Napaka: '+e.message; }
+}
+async function ghSave(){
+  const repo=$('#gh_repo').value.trim(), path=$('#gh_path').value.trim(), branch=$('#gh_branch').value.trim()||'main', token=$('#gh_token').value.trim();
+  const log=$('#ghlog'); log.textContent='Shranjujem...'; saveGhCfg({repo,path,branch});
+  try{
+    let sha;
+    const head = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`,{headers:{Authorization:`token ${token}`,Accept:'application/vnd.github+json'}});
+    if(head.ok){ sha=(await head.json()).sha; }
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,{
+      method:'PUT', headers:{Authorization:`token ${token}`,Accept:'application/vnd.github+json','Content-Type':'application/json'},
+      body: JSON.stringify({message:'Posodobitev podatkov ŠČIT IS', content:b64EncodeUtf8(JSON.stringify(state,null,2)), branch, sha})
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status+' — preveri pravice žetona (repo scope)');
+    logAction('GitHub','Podatki shranjeni v repozitorij');
+    log.textContent='Podatki uspešno shranjeni v GitHub.';
+  }catch(e){ log.textContent='Napaka: '+e.message; }
+}
+async function pickFolder(){
+  try{ dirHandle = await window.showDirectoryPicker(); $('#folderlog').textContent='Mapa izbrana: '+dirHandle.name; }
+  catch(e){ $('#folderlog').textContent='Izbira preklicana.'; }
+}
+async function folderSave(){
+  if(!dirHandle){ $('#folderlog').textContent='Najprej izberi mapo.'; return; }
+  try{
+    const fh = await dirHandle.getFileHandle('zavarovalnica.json',{create:true});
+    const w = await fh.createWritable(); await w.write(JSON.stringify(state,null,2)); await w.close();
+    logAction('Lokalna mapa','Podatki shranjeni v '+dirHandle.name);
+    $('#folderlog').textContent='Shranjeno v mapo: '+dirHandle.name+'/zavarovalnica.json';
+  }catch(e){ $('#folderlog').textContent='Napaka: '+e.message; }
+}
+async function folderLoad(){
+  if(!dirHandle){ $('#folderlog').textContent='Najprej izberi mapo.'; return; }
+  try{
+    const fh = await dirHandle.getFileHandle('zavarovalnica.json');
+    const file = await fh.getFile(); pushBackup(' (pred nalaganjem iz mape)'); state = JSON.parse(await file.text()); ensureState();
+    persist(); logAction('Lokalna mapa','Podatki naloženi iz '+dirHandle.name); renderNav(); renderMain();
+    $('#folderlog').textContent='Podatki naloženi iz mape.';
+  }catch(e){ $('#folderlog').textContent='Napaka: '+e.message; }
+}
+function downloadJson(){
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='zavarovalnica.json'; a.click();
+}
+function importJson(ev){
+  const f=ev.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ pushBackup(' (pred uvozom JSON)'); state=JSON.parse(r.result); ensureState(); persist(); logAction('JSON uvoz','Podatki uvoženi iz datoteke'); renderNav(); renderMain(); alert('JSON uspešno uvožen.'); }catch(e){ alert('Napaka pri branju JSON: '+e.message); } };
+  r.readAsText(f);
+}
+
+/* ================= ZAGON ================= */
+function boot(){ document.body.classList.remove('locked'); renderNav(); renderMain(); }
+applyTheme(localStorage.getItem('zavis_theme') || ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'));
+if(session){ boot(); } else { showLogin(); }
+if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
